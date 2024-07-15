@@ -13,11 +13,11 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: Cuckoo
+title: Cuckoo1
 email:
 description: "A lovely site"
-baseurl                  : "/h00die-gr3y.github.io" # the subpath of your site, e.g. "/blog"
-# url                      : "https://github.com/h00die-gr3y" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+# baseurl                  : "/h00die-gr3y.github.io" # the subpath of your site, e.g. "/blog"
+url                      : "https://github.com/h00die-gr3y" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 repository               : "h00die-gr3y/h00die-gr3y.github.io" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 twitter_username: username
 github_username: username
