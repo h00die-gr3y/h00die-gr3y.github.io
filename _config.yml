@@ -22,7 +22,7 @@ description: >- # this means to ignore newlines until "baseurl:"
 
 # baseurl                  : "/h00die-gr3y.github.io" # the subpath of your site, e.g. "/blog"
 # url                      : "https://github.com/h00die-gr3y" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
-# repository               : "h00die-gr3y/h00die-gr3y.github.io" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
+repository               : "h00die-gr3y/h00die-gr3y.github.io" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 twitter_username: username
 github_username: username
 minimal_mistakes_skin: default
