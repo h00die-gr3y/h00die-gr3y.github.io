@@ -23,9 +23,9 @@ sidebar-hackingstuff:
   - title: "Web site hacking"
     children:
       - title: "XSS Attacks"
-        url: /xss-attacks/
+        url: /under-construction/
       - title: "SQL Injections"
-        url: /sql-injections/
+        url: /under-construction/
   - title: "Other cool stuff"
     children:
       - title: "Log4shell Attacks"
@@ -35,18 +35,18 @@ sidebar-hackingstuff:
   - title: "Hak Tricks"
     children:
       - title: "Rubber Ducky"
-        url: /rubber-ducky/
+        url: /under-construction/
       - title: "Shark Jack"
-        url: /shark-jack/
+        url: /under-construction/
       - title: "Pineapple"
-        url: /pineapple/
+        url: /under-construction/
       - title: "Key Croc"
-        url: /key-croc/
+        url: /under-construction/
       - title: "Plunder Bug"
-        url: /plunder-bug/
+        url: /under-construction/
   - title: "Reconnaisance"
     children:
       - title: "Shodan"
-        url: /
+        url: /under-construction/
       - title: "Google Dorks"
-        url: /
+        url: /under-construction/
