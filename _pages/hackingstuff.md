@@ -26,7 +26,9 @@ references with links like this one [Google Hacking DB](https://www.exploit-db.c
 All these references can also be found at the [References Page](/references/ "References").
 
 On right side of this page and other content pages, you will find table of contents that allows to navigate on the page itself. 
+Below are examples of sections and code snippets that are typically used on the content pages.
 
+This site is still under development, so you might find dead links without content.
 ### Shell command line and script code snippet
 ```shell
 while IFS= read -r url; 
@@ -53,7 +55,7 @@ exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('aW
 
 ```powershell
 PS C:\WINDOWS\system32> Get-service Windefend
-
+```
 Status   Name               DisplayName
 ------   ----               -----------
 Running  Windefend          Microsoft Defender Antivirus Service
