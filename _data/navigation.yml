@@ -1,0 +1,52 @@
+# main links
+main:
+  - title: "About"
+    url: /about/
+  - title: "Hacking stuff"
+    url: /hackingstuff/
+  - title: "0-days"
+    url: /zerodays/
+  - title: "Blog"
+    url: /blog/
+  - title: "References"
+    url: /references/
+  - title: "Disclaimer"
+    url: /disclaimer/
+
+sidebar-hackingstuff:
+  - title: "Metasploit"
+    children:
+      - title: "Tips and Tricks"
+        url: /tips-and-tricks/
+      - title: "Module Development"
+        url: /module-development/
+  - title: "Web site hacking"
+    children:
+      - title: "XSS Attacks"
+        url: /xss-attacks/
+      - title: "SQL Injections"
+        url: /sql-injections/
+  - title: "Other cool stuff"
+    children:
+      - title: "Log4shell Attacks"
+        url: /log4shell/
+      - title: "Active Directory Domain Attack"
+        url: /ad-domain-attack/
+  - title: "Hak Tricks"
+    children:
+      - title: "Rubber Ducky"
+        url: /rubber-ducky/
+      - title: "Shark Jack"
+        url: /shark-jack/
+      - title: "Pineapple"
+        url: /pineapple/
+      - title: "Key Croc"
+        url: /key-croc/
+      - title: "Plunder Bug"
+        url: /plunder-bug/
+  - title: "Reconnaisance"
+    children:
+      - title: "Shodan"
+        url: /
+      - title: "Google Dorks"
+        url: /
