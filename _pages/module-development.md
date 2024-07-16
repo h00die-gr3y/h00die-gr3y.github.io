@@ -19,7 +19,8 @@ toc_icon: "folder"
 toc_sticky: true
 ---
 
-This repository contains private developed Metasploit modules that can be reused freely.
+This page contains private developed Metasploit modules that can be reused freely.
+Most of these modules are already added to the mainstream of Metasploit, but feel free to download them from [here](https://github.com/h00die-gr3y/Metasploit).
 
 ## Modules Installation
 1. Copy the files with the rb extension to your local Metasploit module directory -> `~/.msf4/modules/...`
@@ -46,7 +47,7 @@ This module has been added to the main stream of Metasploit and is now available
 
 `auxiliary/admin/http/hikvision_unauth_pwd_reset_cve_2017_7921`
 
-See also [metasploit-weekly-wrap-up-178](https://www.rapid7.com/blog/post/2022/09/30/metasploit-weekly-wrap-up-178/)
+See also [Metasploit-weekly-wrap-up-178](https://www.rapid7.com/blog/post/2022/09/30/metasploit-weekly-wrap-up-178/)
 
 ### apache_spark_exec.rb
 This module exploits an unauthenticated command injection vulnerability in Apache Spark. Successful exploitation results in remote code execution under the context of the Spark application user. The command injection occurs because Spark checks the group membership of the user passed in the ?doAs parameter by using a raw Linux command. It is triggered by a non-default setting called `spark.acls.enable`. This configuration setting `spark.acls.enable` should be set **true** in the Spark configuration to make the application vulnerable for this attack. 
@@ -64,13 +65,15 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/linux/http/apache_spark_rce_cve_2022_33891`
 
-See also [metasploit-weekly-wrap-up-175](https://www.rapid7.com/blog/post/2022/09/09/metasploit-weekly-wrap-up-175/)
+See also [Metasploit-weekly-wrap-up-175](https://www.rapid7.com/blog/post/2022/09/09/metasploit-weekly-wrap-up-175/)
 
 ### pfsense_pfblockerng_rce_cve_2022_31814.rb
 unauthenticated Remote Command Execution as root in the pfSense pfBlockerNG plugin.
 
-This module exploits an unauthenticated Remote Command Execution as root in the pfSense pfBlockerNG plugin (CVE-2022-31814). The vulnerability affects versions of pfBlockerNG <= 2.1.4_26 and can be exploited by an un authenticated user gaining root access.
-pfBlockerNG is a pfSense plugin that is NOT installed by default and it’s generally used to block inbound connections from wholecountries or IP ranges. This module uses the vulnerability to upload and execute payloads gaining root privileges.
+This module exploits an unauthenticated Remote Command Execution as root in the pfSense pfBlockerNG plugin (CVE-2022-31814).
+The vulnerability affects versions of `pfBlockerNG <= 2.1.4_26` and can be exploited by an un authenticated user gaining root access.
+pfBlockerNG is a pfSense plugin that is NOT installed by default and it’s generally used to block inbound connections from wholecountries or IP ranges.
+This module uses the vulnerability to upload and execute payloads gaining root privileges.
 
 **Installation:**
 ```console
@@ -83,7 +86,7 @@ Similar module is now available at the main stream of Metasploit.
 
 `exploit/unix/http/pfsense_pfblockerng_webshell`
 
-See also [metasploit-weekly-wrap-up-155](https://www.rapid7.com/blog/post/2022/10/14/metasploit-wrap-up-155/)
+See also [Metasploit-weekly-wrap-up-155](https://www.rapid7.com/blog/post/2022/10/14/metasploit-wrap-up-155/)
 
 ### flir_ax8_unauth_rce_cve_2022_37061.rb
 FLIR AX8 is affected by an unauthenticated remote command injection vulnerability.
@@ -105,7 +108,7 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/linux/http/flir_ax8_unauth_rce_cve_2022_37061`
 
-See also [metasploit-weekly-wrap-up-182](https://www.rapid7.com/blog/post/2022/11/04/metasploit-weekly-wrap-up-182/)
+See also [Metasploit-weekly-wrap-up-182](https://www.rapid7.com/blog/post/2022/11/04/metasploit-weekly-wrap-up-182/)
 
 ### vmware_nsxmgr_xstream_rce_cve_2021_39144.rb
 VMware Cloud Foundation (NSX-V) contains a remote code execution vulnerability via XStream open source library.<br />
@@ -124,7 +127,7 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/linux/http/vmware_nsxmgr_xstream_rce_cve_2021_39144`
 
-See also [metasploit-weekly-wrap-up-184](https://www.rapid7.com/blog/post/2022/11/18/metasploit-weekly-wrap-up-184/)
+See also [Metasploit-weekly-wrap-up-184](https://www.rapid7.com/blog/post/2022/11/18/metasploit-weekly-wrap-up-184/)
 
 ### linear_emerge_unauth_rce_cve_2019_7256.rb
 Nortek Security & Control, LLC (NSC) is a leader in wireless security, home automation and personal safety systems and devices. The eMerge E3-Series is part of Linear’s access control platform, that delivers entry-level access control to buildings.<br />
@@ -150,7 +153,7 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/linux/http/linear_emerge_unauth_rce_cve_2019_7256`
 
-See also [metasploit-weekly-wrap-up-4](https://www.rapid7.com/blog/post/2023/01/06/metasploit-weekly-wrap-up-4/)
+See also [Metasploit-weekly-wrap-up-4](https://www.rapid7.com/blog/post/2023/01/06/metasploit-weekly-wrap-up-4/)
 
 ### ivanti_csa_unauth_rce_cve_2021_44529.rb
 This module exploits a command injection vulnerability in the Ivanti Cloud Services Appliance (CSA)for Ivanti Endpoint Manager.<br />
@@ -169,7 +172,7 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/linux/http/ivanti_csa_unauth_rce_cve_2021_44529.rb`
 
-See also [metasploit-weekly-wrap-up-189](https://www.rapid7.com/blog/post/2023/01/20/metasploit-weekly-wrap-up-189/)
+See also [Metasploit-weekly-wrap-up-189](https://www.rapid7.com/blog/post/2023/01/20/metasploit-weekly-wrap-up-189/)
 
 ### control_web_panel_unauth_rce_cve_2022_44877.rb
 This module exploits a remote command execution vulnerability in the Control Web Panel (CWP) application.<br />
@@ -204,7 +207,7 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/multi/http/sugarcrm_webshell_cve_2023_22952.rb`
 
-See also [metasploit-weekly-wrap-up-196](https://www.rapid7.com/blog/post/2023/03/10/metasploit-weekly-wrap-up-196/)
+See also [Metasploit-weekly-wrap-up-196](https://www.rapid7.com/blog/post/2023/03/10/metasploit-weekly-wrap-up-196/)
 
 ### optergy_bms_backdoor_rce_cve_2019_7276.rb
 This module exploits an undocumented backdoor vulnerability in the Optergy Proton and Enterprise Building Management System (BMS) applications. Versions `2.0.3a` and below are vulnerable.
@@ -222,10 +225,11 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/linux/http/optergy_bms_backdoor_rce_cve_2019_7276.rb`
 
-See also [metasploit-weekly-wrap-up-198](https://www.rapid7.com/blog/post/2023/03/31/metasploit-weekly-wrap-up-198/)
+See also [Metasploit-weekly-wrap-up-198](https://www.rapid7.com/blog/post/2023/03/31/metasploit-weekly-wrap-up-198/)
 
 ### bash_env_cgi_rce.rb
-This module exploits the Shellshock vulnerability, a flaw in how the Bash shell handles external environment variables. This module targets CGI scripts in web servers by setting the `HTTP_USER_AGENT` environment variable to a malicious function definition.
+This module exploits the Shellshock vulnerability, a flaw in how the Bash shell handles external environment variables.
+This module targets CGI scripts in web servers by setting the `HTTP_USER_AGENT` environment variable to a malicious function definition.
 
 **Installation:**
 ```console
@@ -276,7 +280,7 @@ msf6> reload_all
 **UPDATE Jue 16, 2023:**<br />
 All TerraMaster modules have been added to the main stream of Metasploit and are now available under same the module names.
 
-See also [metasploit-weekly-wrap-up-15](https://www.rapid7.com/blog/post/2023/06/16/metasploit-weekly-wrap-up-15/)
+See also [Metasploit-weekly-wrap-up-15](https://www.rapid7.com/blog/post/2023/06/16/metasploit-weekly-wrap-up-15/)
 
 ### openfire_auth_bypass_rce_cve_2023_32315.rb
 `Openfire's` administrative console, a web-based application, was found to be vulnerable to a path traversal attack via the setup environment using the path `http://localhost:9090/setup/setup-s/%u002e%u002e/%u002e%u002e/`. Endpoints such as `log.jsp`, `user-groups.jsp` and `user-create.jsp` can be used to gain unauthorized admin access.
@@ -298,7 +302,7 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/multi/http/openfire_auth_bypass_rce_cve_2023_32315`
 
-See also [metasploit-weekly-wrap-up-20](https://www.rapid7.com/blog/post/2023/07/21/metasploit-weekly-wrap-up-20/)
+See also [Metasploit-weekly-wrap-up-20](https://www.rapid7.com/blog/post/2023/07/21/metasploit-weekly-wrap-up-20/)
 
 ### wp_plugin_fma_shortcode_unauth_rce.rb
 The Wordpress plugin does not adequately prevent uploading files with disallowed MIME types when using the shortcode.
@@ -321,7 +325,7 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/multi/http/wp_plugin_fma_shortcode_unauth_rce`
 
-See also [metasploit-weekly-wrap-up-21](https://www.rapid7.com/blog/post/2023/07/28/metasploit-weekly-wrap-up-21/)
+See also [Metasploit-weekly-wrap-up-21](https://www.rapid7.com/blog/post/2023/07/28/metasploit-weekly-wrap-up-21/)
 
 ### chamilo_unauth_rce_cve_2023_34960.rb
 `Chamilo` is an e-learning platform, also called Learning Management Systems (LMS).
@@ -341,7 +345,7 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/linux/http/chamilo_unauth_rce_cve_2023_34960`
 
-See also [metasploit-weekly-wrap-up-24](https://www.rapid7.com/blog/post/2023/08/25/metasploit-weekly-wrap-up-24/)
+See also [Metasploit-weekly-wrap-up-24](https://www.rapid7.com/blog/post/2023/08/25/metasploit-weekly-wrap-up-24/)
 
 ### solarview_unauth_rce_cve_2023_23333.rb
 [SolarView Compact](https://www.contec.com/products-services/environmental-monitoring/solarview/) has a vulnerability that allows remote code execution on a vulnerable `SolarView Compact` device by bypassing internal restrictions through the vulnerable endpoint `downloader.php` using the `file` parameter. 
@@ -360,12 +364,12 @@ This module has been added to the main stream of Metasploit and is now available
 
 `exploit/linux/http/solarview_unauth_rce_cve_2023_23333`
 
-See also [metasploit-weekly-wrap-up-26](https://www.rapid7.com/blog/post/2023/09/08/metasploit-weekly-wrap-up-26/)
+See also [Metasploit-weekly-wrap-up-26](https://www.rapid7.com/blog/post/2023/09/08/metasploit-weekly-wrap-up-26/)
 
 ### totolink_unauth_rce_cve_2023_30013.rb
-TOTOLINK X5000R Wireless Gigabit Router firmware X5000R_V9.1.0u.6118_B20201102 contains a command insertion vulnerability in setting/setTracerouteCfg.
+TOTOLINK X5000R Wireless Gigabit Router firmware `X5000R_V9.1.0u.6118_B20201102` contains a command insertion vulnerability in `setting/setTracerouteCfg`.
 This vulnerability allows an attacker to execute arbitrary commands through the "command" parameter.
-After exploitation, an attacker will have full access with the same user privileges under which the webserver is running (typically as user `root`, ;-).
+After exploitation, an attacker will have full access with the same user privileges under which the webserver is running (typically as user `root`;-).
 
 Read this [article](https://attackerkb.com/topics/xnX3I3PEgM/cve-2023-30013) on attackerkb.com for more details.
 

