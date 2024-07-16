@@ -32,9 +32,13 @@ Most of these modules are already added to the mainstream of Metasploit, but fee
 ### hikvision_unauth_pwd_reset.rb
 Unauthenticated password change for any user configured at a vulnerable Hikvision IP Camera.
 
-Many Hikvision IP cameras contain a backdoor that allows unauthenticated impersonation of any configured user account. The vulnerability has been present in Hikvision products since 2014. In addition to Hikvision-branded devices, it affects many white-labeled camera products sold under a variety of brand names. Hundreds of thousands of vulnerable devices are still exposed to the Internet at the time of publishing (shodan search: `App-webs 200 OK product:"Hikvision IP Camera" port:"80"`). 
+Many Hikvision IP cameras contain a backdoor that allows unauthenticated impersonation of any configured user account.
+The vulnerability has been present in Hikvision products since 2014. 
+In addition to Hikvision-branded devices, it affects many white-labeled camera products sold under a variety of brand names.
+Hundreds of thousands of vulnerable devices are still exposed to the Internet at the time of publishing (shodan search: `App-webs 200 OK product:"Hikvision IP Camera" port:"80"`). 
 
-This module allows the attacker to perform an unauthenticated password change of any vulnerable Hikvision IP Camera to gaining full administrative access. The vulnerability can be exploited for all configured users.
+This module allows the attacker to perform an unauthenticated password change of any vulnerable Hikvision IP Camera to gaining full administrative access.
+The vulnerability can be exploited for all configured users.
 
 **Installation:**
 ```console
@@ -50,9 +54,13 @@ This module has been added to the main stream of Metasploit and is now available
 See also [Metasploit-weekly-wrap-up-178](https://www.rapid7.com/blog/post/2022/09/30/metasploit-weekly-wrap-up-178/)
 
 ### apache_spark_exec.rb
-This module exploits an unauthenticated command injection vulnerability in Apache Spark. Successful exploitation results in remote code execution under the context of the Spark application user. The command injection occurs because Spark checks the group membership of the user passed in the ?doAs parameter by using a raw Linux command. It is triggered by a non-default setting called `spark.acls.enable`. This configuration setting `spark.acls.enable` should be set **true** in the Spark configuration to make the application vulnerable for this attack. 
+This module exploits an unauthenticated command injection vulnerability in Apache Spark.
+Successful exploitation results in remote code execution under the context of the Spark application user.
+The command injection occurs because Spark checks the group membership of the user passed in the ?doAs parameter by using a raw Linux command.
+It is triggered by a non-default setting called `spark.acls.enable`.
+This configuration setting `spark.acls.enable` should be set **true** in the Spark configuration to make the application vulnerable for this attack. 
 
-Apache Spark versions 3.0.3 and earlier, versions 3.1.1 to 3.1.2, and versions 3.2.0 to 3.2.1 are affected by this vulnerability.
+Apache Spark versions `3.0.3` and earlier, versions `3.1.1` to `3.1.2`, and versions `3.2.0` to `3.2.1` are affected by this vulnerability.
 
 **Installation:**
 ```console
@@ -70,7 +78,7 @@ See also [Metasploit-weekly-wrap-up-175](https://www.rapid7.com/blog/post/2022/0
 ### pfsense_pfblockerng_rce_cve_2022_31814.rb
 unauthenticated Remote Command Execution as root in the pfSense pfBlockerNG plugin.
 
-This module exploits an unauthenticated Remote Command Execution as root in the pfSense pfBlockerNG plugin (CVE-2022-31814).
+This module exploits an unauthenticated Remote Command Execution as root in the pfSense pfBlockerNG plugin [CVE-2022-31814](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-31814).
 The vulnerability affects versions of `pfBlockerNG <= 2.1.4_26` and can be exploited by an un authenticated user gaining root access.
 pfBlockerNG is a pfSense plugin that is NOT installed by default and it’s generally used to block inbound connections from wholecountries or IP ranges.
 This module uses the vulnerability to upload and execute payloads gaining root privileges.
@@ -130,7 +138,8 @@ This module has been added to the main stream of Metasploit and is now available
 See also [Metasploit-weekly-wrap-up-184](https://www.rapid7.com/blog/post/2022/11/18/metasploit-weekly-wrap-up-184/)
 
 ### linear_emerge_unauth_rce_cve_2019_7256.rb
-Nortek Security & Control, LLC (NSC) is a leader in wireless security, home automation and personal safety systems and devices. The eMerge E3-Series is part of Linear’s access control platform, that delivers entry-level access control to buildings.<br />
+Nortek Security & Control, LLC (NSC) is a leader in wireless security, home automation and personal safety systems and devices.
+The eMerge E3-Series is part of Linear’s access control platform, that delivers entry-level access control to buildings.<br />
 It is a web based application where the HTTP web interface is typically exposed to the public internet.<br />
 
 The Linear eMerge E3-Series with firmware versions `1.00-06` and below are vulnerable to an unauthenticated command injection remote root exploit that leverages card_scan_decoder.php.<br />
@@ -210,7 +219,8 @@ This module has been added to the main stream of Metasploit and is now available
 See also [Metasploit-weekly-wrap-up-196](https://www.rapid7.com/blog/post/2023/03/10/metasploit-weekly-wrap-up-196/)
 
 ### optergy_bms_backdoor_rce_cve_2019_7276.rb
-This module exploits an undocumented backdoor vulnerability in the Optergy Proton and Enterprise Building Management System (BMS) applications. Versions `2.0.3a` and below are vulnerable.
+This module exploits an undocumented backdoor vulnerability in the Optergy Proton and Enterprise Building Management System (BMS) applications.
+Versions `2.0.3a` and below are vulnerable.
 Attackers can exploit this issue by directly navigating to an undocumented backdoor script called `Console.jsp` in the tools directory and gain full system access.
 Successful exploitation results in `root` command execution using `sudo` as user `optergy`.
 
@@ -250,7 +260,8 @@ Because of this, any remote attacker, regardless of authentication, can exploit 
 msf6> reload_all
 ```
 ### terramaster_unauth_rce_cve_2021_45837.rb a.k.a. TerrorMaster 2
-This module provides a Terramaster chained exploit that performs session crafting to achieve escalated privileges that allows an attacker to access vulnerable code execution flaws. TOS versions `4.2.15` and below  are affected. 
+This module provides a Terramaster chained exploit that performs session crafting to achieve escalated privileges that allows an attacker to access vulnerable code execution flaws.
+TOS versions `4.2.15` and below  are affected. 
 
 [CVE-2021-45839](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-45839) is exploited to obtain the first administrator's hash set up on the system as well as other information such as MAC address, by performing a `POST` request to the `/module/api.php?mobile/webNasIPS` endpoint.
 This information is used to craft an unauthenticated admin session using [CVE-2021-45841](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-45841) where an attacker can self-sign session cookies by knowing the target MAC address and the user password hash.
@@ -283,10 +294,12 @@ All TerraMaster modules have been added to the main stream of Metasploit and are
 See also [Metasploit-weekly-wrap-up-15](https://www.rapid7.com/blog/post/2023/06/16/metasploit-weekly-wrap-up-15/)
 
 ### openfire_auth_bypass_rce_cve_2023_32315.rb
-`Openfire's` administrative console, a web-based application, was found to be vulnerable to a path traversal attack via the setup environment using the path `http://localhost:9090/setup/setup-s/%u002e%u002e/%u002e%u002e/`. Endpoints such as `log.jsp`, `user-groups.jsp` and `user-create.jsp` can be used to gain unauthorized admin access.
+`Openfire's` administrative console, a web-based application, was found to be vulnerable to a path traversal attack via the setup environment using the path `http://localhost:9090/setup/setup-s/%u002e%u002e/%u002e%u002e/`. 
+Endpoints such as `log.jsp`, `user-groups.jsp` and `user-create.jsp` can be used to gain unauthorized admin access.
 It allows an unauthenticated user to use the unauthenticated `Openfire` Setup Environment in an already configured `Openfire` environment to access restricted pages in the `Openfire Admin Console` reserved for administrative users.
 
-This module will use the vulnerability to create a new admin user that will be used to upload a `Openfire` management plugin weaponized with a `Java` native payload that triggers an RCE. The vulnerability affects all versions of `Openfire` that have been released since April 2015, starting with version `3.10.0`.
+This module will use the vulnerability to create a new admin user that will be used to upload a `Openfire` management plugin weaponized with a `Java` native payload that triggers an RCE.
+The vulnerability affects all versions of `Openfire` that have been released since April 2015, starting with version `3.10.0`.
 The problem has been patched in `Openfire` release `4.7.5` and `4.6.8`, and further improvements will be included in the first version on the `4.8` branch, which is version `4.8.0`.
 
 See this [AttackerKB Article](https://attackerkb.com/topics/7Tf5YGY3oT/cve-2023-32315) for more details.
@@ -329,7 +342,8 @@ See also [Metasploit-weekly-wrap-up-21](https://www.rapid7.com/blog/post/2023/07
 
 ### chamilo_unauth_rce_cve_2023_34960.rb
 `Chamilo` is an e-learning platform, also called Learning Management Systems (LMS).
-This module exploits an unauthenticated remote command execution vulnerability that affects `Chamilo` versions `1.11.18` and below. See also [CVE-2023-34960](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-34960). 
+This module exploits an unauthenticated remote command execution vulnerability that affects `Chamilo` versions `1.11.18` and below.
+See also [CVE-2023-34960](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-34960). 
 Due to a functionality called `Chamilo Rapid` to easily convert PowerPoint slides to courses on `Chamilo`, it is possible for an unauthenticated remote attacker to execute arbitrary commands at OS level using a malicious SOAP request at the vulnerable endpoint `/main/webservices/additional_webservices.php`.
 
 Read this [article](https://attackerkb.com/topics/VVJpMeSpUP/cve-2023-34960) on attackerkb.com for more details.
