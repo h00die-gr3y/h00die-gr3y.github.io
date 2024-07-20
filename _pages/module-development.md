@@ -49,7 +49,7 @@ msf6> reload_all
 **UPDATE September 30, 2022:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`auxiliary/admin/http/hikvision_unauth_pwd_reset_cve_2017_7921`
+`auxiliary/admin/http/hikvision_unauth_pwd_reset_cve_2017_7921`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-178](https://www.rapid7.com/blog/post/2022/09/30/metasploit-weekly-wrap-up-178/)
 
@@ -71,7 +71,7 @@ msf6> reload_all
 **UPDATE September 13, 2022:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/linux/http/apache_spark_rce_cve_2022_33891`
+`exploit/linux/http/apache_spark_rce_cve_2022_33891`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-175](https://www.rapid7.com/blog/post/2022/09/09/metasploit-weekly-wrap-up-175/)
 
@@ -92,7 +92,7 @@ msf6> reload_all
 **UPDATE October 14, 2022:**<br />
 Similar module is now available at the main stream of Metasploit.
 
-`exploit/unix/http/pfsense_pfblockerng_webshell`
+`exploit/unix/http/pfsense_pfblockerng_webshell`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-155](https://www.rapid7.com/blog/post/2022/10/14/metasploit-wrap-up-155/)
 
@@ -114,7 +114,7 @@ msf6> reload_all
 **UPDATE November 4, 2022:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/linux/http/flir_ax8_unauth_rce_cve_2022_37061`
+`exploit/linux/http/flir_ax8_unauth_rce_cve_2022_37061`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-182](https://www.rapid7.com/blog/post/2022/11/04/metasploit-weekly-wrap-up-182/)
 
@@ -133,7 +133,7 @@ msf6> reload_all
 **UPDATE November 18, 2022:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/linux/http/vmware_nsxmgr_xstream_rce_cve_2021_39144`
+`exploit/linux/http/vmware_nsxmgr_xstream_rce_cve_2021_39144`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-184](https://www.rapid7.com/blog/post/2022/11/18/metasploit-weekly-wrap-up-184/)
 
@@ -160,7 +160,7 @@ msf6> reload_all
 **UPDATE January 06, 2023:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/linux/http/linear_emerge_unauth_rce_cve_2019_7256`
+`exploit/linux/http/linear_emerge_unauth_rce_cve_2019_7256`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-4](https://www.rapid7.com/blog/post/2023/01/06/metasploit-weekly-wrap-up-4/)
 
@@ -179,7 +179,7 @@ msf6> reload_all
 **UPDATE January 20, 2023:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/linux/http/ivanti_csa_unauth_rce_cve_2021_44529.rb`
+`exploit/linux/http/ivanti_csa_unauth_rce_cve_2021_44529.rb`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-189](https://www.rapid7.com/blog/post/2023/01/20/metasploit-weekly-wrap-up-189/)
 
@@ -214,7 +214,7 @@ msf6> reload_all
 **UPDATE March 10, 2023:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/multi/http/sugarcrm_webshell_cve_2023_22952.rb`
+`exploit/multi/http/sugarcrm_webshell_cve_2023_22952.rb`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-196](https://www.rapid7.com/blog/post/2023/03/10/metasploit-weekly-wrap-up-196/)
 
@@ -233,7 +233,7 @@ msf6> reload_all
 **UPDATE March 31, 2023:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/linux/http/optergy_bms_backdoor_rce_cve_2019_7276.rb`
+`exploit/linux/http/optergy_bms_backdoor_rce_cve_2019_7276.rb`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-198](https://www.rapid7.com/blog/post/2023/03/31/metasploit-weekly-wrap-up-198/)
 
@@ -313,7 +313,7 @@ msf6> reload_all
 **UPDATE July 21, 2023:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/multi/http/openfire_auth_bypass_rce_cve_2023_32315`
+`exploit/multi/http/openfire_auth_bypass_rce_cve_2023_32315`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-20](https://www.rapid7.com/blog/post/2023/07/21/metasploit-weekly-wrap-up-20/)
 
@@ -336,7 +336,7 @@ msf6> reload_all
 **UPDATE July 28, 2023:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/multi/http/wp_plugin_fma_shortcode_unauth_rce`
+`exploit/multi/http/wp_plugin_fma_shortcode_unauth_rce`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-21](https://www.rapid7.com/blog/post/2023/07/28/metasploit-weekly-wrap-up-21/)
 
@@ -357,7 +357,7 @@ msf6> reload_all
 **UPDATE August 25, 2023:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/linux/http/chamilo_unauth_rce_cve_2023_34960`
+`exploit/linux/http/chamilo_unauth_rce_cve_2023_34960`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-24](https://www.rapid7.com/blog/post/2023/08/25/metasploit-weekly-wrap-up-24/)
 
@@ -376,7 +376,7 @@ msf6> reload_all
 **UPDATE September 08, 2023:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/linux/http/solarview_unauth_rce_cve_2023_23333`
+`exploit/linux/http/solarview_unauth_rce_cve_2023_23333`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-26](https://www.rapid7.com/blog/post/2023/09/08/metasploit-weekly-wrap-up-26/)
 
@@ -396,6 +396,6 @@ msf6> reload_all
 **UPDATE September 22, 2023:**<br />
 This module has been added to the main stream of Metasploit and is now available under the module name:
 
-`exploit/linux/http/totolink_unauth_rce_cve_2023_30013`
+`exploit/linux/http/totolink_unauth_rce_cve_2023_30013`{: style="color: lime"}
 
 See also [Metasploit-weekly-wrap-up-28](https://www.rapid7.com/blog/post/2023/09/22/metasploit-weekly-wrap-up-28/)
