@@ -22,10 +22,10 @@ toc_sticky: true
 ## Introduction
 
 One of the ultimate goals of a Hacker is to get full administrative access to Active Directory Domain that literally makes your Mr. God in
-the Windows world. This "little" write up will give you a glance how to this by explianing two potential attack vectors 
+the Windows world. This "little" write up will give you a glance how to this by explaining two potential attack vectors 
 <span style="color:lime">"Zerologon"</span> and <span style="color:lime">"PetitPotam / ADCS"</span> exploitation.
 
-To demonstrate these two attacks, I have created a small test bed with an Active Directory /DNS server and a Certificate server (ADCS).
+To demonstrate these two attacks, I have created a small test bed with an Active Directory/DNS server and a Certificate server (ADCS).
 
 Domain: `victim.com`\
 DC / DNS hostname: `advictim2012r2`\

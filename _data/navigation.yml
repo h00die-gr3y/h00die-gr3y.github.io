@@ -32,6 +32,12 @@ sidebar-hackingstuff:
         url: /log4shell/
       - title: "Active Directory Domain Attack"
         url: /ad-domain-attack/
+  - title: "IoT Hacking"
+    children:
+      - title: "Spawning UART shells"
+        url: /iot-uart-shell/
+      - title: "Firmware Emulation"
+        url: /under-construction/
   - title: "Hak Tricks"
     children:
       - title: "Rubber Ducky"
