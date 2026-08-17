@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="404 — h00die-gr3y"
+  description="The requested page could not be found."
+  robots="noindex,follow"
+>
+  <Header />
+  <main id="main-content" tabindex="-1">
+    <section class="page-hero">
+      <div class="container narrow">
+        <span class="section-index">404 / NOT FOUND</span>
+        <h1>Nothing at this address.</h1>
+        <p>The page may have moved during the rebuild, or the URL may be incorrect.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="/research/">Browse research <span>→</span></a>
+          <a class="button button-secondary" href="/knowledge-base/">Knowledge Base <span>→</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

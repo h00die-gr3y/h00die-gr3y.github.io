@@ -1,0 +1,24 @@
+---
+const { title, description, category, topics = [], href } = Astro.props;
+const categoryLabels = {
+  'web-applications': 'Web Applications',
+  'exploit-development': 'Exploit Development',
+  'infrastructure': 'Infrastructure',
+  'iot-embedded': 'IoT & Embedded',
+  'tools-techniques': 'Tools & Techniques',
+};
+---
+<article class="kb-card">
+  <div class="kb-card-top">
+    <span class="kb-category">{categoryLabels[category] ?? category}</span>
+    <span class="kb-entry-mark">REFERENCE</span>
+  </div>
+  <h2><a href={href}>{title}</a></h2>
+  <p>{description}</p>
+  {topics.length > 0 && (
+    <div class="kb-topics">
+      {topics.slice(0, 5).map((topic) => <span>{topic}</span>)}
+    </div>
+  )}
+  <a class="kb-read" href={href}>Open reference <span>→</span></a>
+</article>

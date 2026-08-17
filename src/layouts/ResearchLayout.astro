@@ -1,0 +1,139 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const { data, relatedKnowledge = [], relatedArticles = [] } = Astro.props;
+const typeLabel = data.researchType === 'original-research' ? 'ORIGINAL RESEARCH' : 'TECHNICAL ANALYSIS';
+const seoKeywords = [...new Set([
+  data.cve,
+  data.vendor,
+  ...(data.vulnerabilityClasses ?? []),
+  ...(data.tags ?? []),
+  ...(data.products ?? []),
+].filter((value): value is string => typeof value === 'string' && value.length > 0))];
+const artifactTypeLabels = {
+  metasploit: 'Metasploit',
+  python: 'Python',
+  nuclei: 'Nuclei',
+  poc: 'Proof of concept',
+  script: 'Script',
+  other: 'Other',
+};
+---
+
+<BaseLayout
+  title={`${data.title} — h00die-gr3y`}
+  description={data.description}
+  ogType="article"
+  schemaType="TechArticle"
+  publishedTime={data.published}
+  modifiedTime={data.revised}
+  keywords={seoKeywords}
+>
+  <Header />
+  <main id="main-content" tabindex="-1">
+    <section class="research-detail-hero">
+      <div class="container">
+        <div class="research-detail-labels">
+          <span class="section-index">{typeLabel}</span>
+          {data.exploitDevelopment && <span class="research-output-label">EXPLOIT DEVELOPMENT</span>}
+          {data.cve && <span class="research-cve">{data.cve}</span>}
+        </div>
+        <h1>{data.title}</h1>
+        <p>{data.description}</p>
+        <div class="research-provenance">
+          Originally published on {data.source.platform} · {data.published}
+          {data.revised !== data.published && <> · revised {data.revised}</>}
+        </div>
+      </div>
+    </section>
+
+    <section class="research-detail section-bordered">
+      <div class="container research-detail-grid">
+        <article class="research-body">
+          <slot />
+        </article>
+
+        <aside class="research-sidebar">
+          <div class="meta-panel">
+            <h2>Research metadata</h2>
+            <dl>
+              <div><dt>Research type</dt><dd>{data.researchType === 'original-research' ? 'Original research' : 'Technical analysis'}</dd></div>
+              {data.exploitDevelopment && <div><dt>Research output</dt><dd>Exploit development</dd></div>}
+              {data.vulnerabilityClasses?.length > 0 && <div><dt>Vulnerability</dt><dd>{data.vulnerabilityClasses.join(', ')}</dd></div>}
+              {data.authentication && <div><dt>Authentication</dt><dd>{data.authentication === 'unauthenticated' ? 'Unauthenticated' : data.authentication === 'authenticated' ? 'Authenticated' : data.authentication === 'mixed' ? 'Mixed' : 'Unknown'}</dd></div>}
+              {data.privilegesRequired && <div><dt>Privileges</dt><dd>{data.privilegesRequired}</dd></div>}
+              {data.platforms?.length > 0 && <div><dt>Platform</dt><dd>{data.platforms.join(', ')}</dd></div>}
+              {data.vendor && <div><dt>Vendor</dt><dd>{data.vendor}</dd></div>}
+              {data.products.length > 0 && <div><dt>Product</dt><dd>{data.products.join(', ')}</dd></div>}
+              {data.weaknesses.length > 0 && <div><dt>CWE</dt><dd>{data.weaknesses.join(', ')}</dd></div>}
+              {data.cvss && <div><dt>CVSS</dt><dd>{data.cvss.score.toFixed(1)} · {data.cvss.severity}</dd></div>}
+              <div><dt>Published</dt><dd>{data.published}</dd></div>
+              {data.disclosureDate && <div><dt>Disclosure</dt><dd>{data.disclosureDate}</dd></div>}
+              <div><dt>Source</dt><dd>{data.source.platform}</dd></div>
+            </dl>
+          </div>
+
+          {data.vulnerableVersions.length > 0 && (
+            <div class="meta-panel">
+              <h2>Affected versions</h2>
+              <ul>{data.vulnerableVersions.map((v) => <li>{v}</li>)}</ul>
+            </div>
+          )}
+
+          {relatedKnowledge.length > 0 && (
+            <div class="meta-panel">
+              <h2>Related knowledge</h2>
+              <ul class="meta-links">
+                {relatedKnowledge.map((item) => (
+                  <li><a href={`/knowledge-base/${item.slug}/`}>{item.label} →</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {relatedArticles.length > 0 && (
+            <div class="meta-panel">
+              <h2>Related articles</h2>
+              <ul class="meta-links">
+                {relatedArticles.map((item) => (
+                  <li><a href={`/articles/${item.slug}/`}>{item.label} →</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {data.exploitArtifacts.length > 0 && (
+            <div class="meta-panel">
+              <h2>Implementation</h2>
+              <ul class="meta-links implementation-links">
+                {data.exploitArtifacts.map((tool) => (
+                  <li>
+                    <div class="implementation-name">{tool.label} <span class="tool-kind">[{artifactTypeLabels[tool.type] ?? tool.type}]</span></div>
+                    {tool.type === 'metasploit' ? (
+                      <div class="implementation-actions">
+                        {tool.officialUrl && <a href={tool.officialUrl} target="_blank" rel="noopener noreferrer">Official module ↗<span class="sr-only"> (opens in a new tab)</span></a>}
+                        {tool.pullRequestUrl && <a href={tool.pullRequestUrl} target="_blank" rel="noopener noreferrer">Contribution PR{tool.pullRequestUrl.match(/\/pull\/(\d+)/)?.[1] ? ` #${tool.pullRequestUrl.match(/\/pull\/(\d+)/)?.[1]}` : ''} ↗<span class="sr-only"> (opens in a new tab)</span></a>}
+                        {!tool.officialUrl && tool.localUrl && <a href={tool.localUrl} target="_blank" rel="noopener noreferrer">Research implementation ↗<span class="sr-only"> (opens in a new tab)</span></a>}
+                        {!tool.officialUrl && !tool.localUrl && tool.url && <a href={tool.url} target="_blank" rel="noopener noreferrer">Implementation ↗<span class="sr-only"> (opens in a new tab)</span></a>}
+                      </div>
+                    ) : (
+                      tool.url && <div class="implementation-actions"><a href={tool.url} target="_blank" rel="noopener noreferrer">Open artifact ↗<span class="sr-only"> (opens in a new tab)</span></a></div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div class="meta-panel archive-note">
+            <h2>Archive provenance</h2>
+            <p>This research was preserved from the h00die-gr3y AttackerKB archive before the platform's retirement.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

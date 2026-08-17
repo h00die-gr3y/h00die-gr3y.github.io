@@ -1,0 +1,41 @@
+---
+const currentPath = Astro.url.pathname;
+const navItems = [
+  { href: '/research/', label: 'Research' },
+  { href: '/cves/', label: 'CVEs' },
+  { href: '/exploits/', label: 'Exploits' },
+  { href: '/articles/', label: 'Articles' },
+  { href: '/knowledge-base/', label: 'Knowledge Base' },
+  { href: '/about/', label: 'About' },
+];
+
+const isActive = (href: string) => currentPath === href || currentPath.startsWith(href);
+---
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/" aria-label="h00die-gr3y home">
+      <span class="brand-mark">H00DIE</span><span class="brand-dash">-</span><span class="brand-muted">GR3Y</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Main navigation">
+      {navItems.map((item) => (
+        <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+      ))}
+    </nav>
+
+    <a class="github-link" href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a>
+
+    <details class="mobile-nav">
+      <summary>Menu</summary>
+      <nav aria-label="Mobile navigation">
+        {navItems.map((item) => (
+          <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+        ))}
+        <a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a>
+      </nav>
+    </details>
+  </div>
+</header>

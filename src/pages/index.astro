@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ResearchCard from '../components/ResearchCard.astro';
+
+const recentResearch = [
+  {
+    eyebrow: 'VULNERABILITY RESEARCH',
+    title: 'Centreon Poller Reload Command Injection',
+    text: 'Authenticated OS command injection in Centreon poller configuration, resulting in arbitrary command execution when the poller configuration is reloaded.',
+    meta: 'CVE-2025-5946 · COMMAND INJECTION · RCE',
+    href: '/research/cve-2025-5946/'
+  },
+  {
+    eyebrow: 'EXPLOIT DEVELOPMENT',
+    title: 'GL.iNet Unauthenticated Remote Code Execution',
+    text: 'Technical validation of an unauthenticated remote code execution path affecting multiple GL.iNet network devices, with Metasploit exploitation.',
+    meta: 'CVE-2023-50445 · IOT · METASPLOIT',
+    href: '/research/cve-2023-50445/'
+  },
+  {
+    eyebrow: 'TECHNICAL ANALYSIS',
+    title: 'Apache Spark Shell Command Injection',
+    text: 'Analysis and exploitation of the Apache Spark ACL code path that allowed attacker-controlled input to reach a Unix shell command.',
+    meta: 'CVE-2022-33891 · COMMAND INJECTION · METASPLOIT',
+    href: '/research/cve-2022-33891/'
+  }
+];
+
+const researchAreas = [
+  ['01','Vulnerability Research','Original vulnerability discovery, technical analysis, responsible disclosure and security advisories.'],
+  ['02','Exploit Development','Proof-of-concepts, Metasploit modules and practical exploitation research.'],
+  ['03','Application Security','Research into authentication, authorization, injection flaws, deserialization and server-side vulnerabilities.'],
+  ['04','Infrastructure & IoT','Linux, Windows, network appliances, embedded systems and hardware-oriented security research.']
+];
+---
+
+<BaseLayout>
+  <Header />
+  <main id="main-content" tabindex="-1">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="eyebrow"><span class="status-dot"></span>INDEPENDENT SECURITY RESEARCH</div>
+          <h1>H00DIE<span class="hero-dash">-</span><span>GR3Y</span></h1>
+          <p class="hero-subtitle">Security Research <span>·</span> Vulnerability Analysis <span>·</span> Exploit Development</p>
+          <p class="hero-description">Independent security research focused on understanding how systems fail — and how those weaknesses can be identified, demonstrated and mitigated.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="/research/">Explore research <span>→</span></a>
+            <a class="button button-secondary" href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">View GitHub <span>↗</span><span class="sr-only"> (opens in a new tab)</span></a>
+          </div>
+        </div>
+
+        <aside class="terminal-card" aria-label="Research profile">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span></span><span></span><span></span></div>
+            <span>research.profile</span>
+          </div>
+          <div class="terminal-body">
+            <p><span class="prompt">$</span> whoami</p>
+            <p class="terminal-output">h00die-gr3y</p>
+            <p><span class="prompt">$</span> focus --list</p>
+            <div class="terminal-output">
+              <p>vulnerability-research</p><p>exploit-development</p><p>application-security</p><p>infrastructure</p><p>iot-and-embedded</p>
+            </div>
+            <p class="terminal-last"><span class="prompt">$</span><span class="cursor"></span></p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="stats-section">
+      <div class="container stats-grid">
+        <div class="stat"><strong>62</strong><span>CVEs in archive</span></div>
+        <div class="stat"><strong>63</strong><span>Research assessments</span></div>
+        <div class="stat"><strong>2022—2026</strong><span>AttackerKB archive</span></div>
+      </div>
+    </section>
+
+    <section class="section section-bordered">
+      <div class="container">
+        <div class="section-heading">
+          <div><span class="section-index">01 / LATEST</span><h2>Latest research</h2></div>
+          <a class="text-link" href="/research/">View all research →</a>
+        </div>
+
+        <article class="featured-research">
+          <div class="featured-meta"><span class="badge">ORIGINAL RESEARCH</span><span>CVE-2026-26978</span></div>
+          <div class="featured-content">
+            <div>
+              <h3>FreePBX Backup & Restore — PHP Object Injection to RCE</h3>
+              <p>An authenticated remote code execution vulnerability in the FreePBX Backup & Restore module caused by unsafe deserialization of attacker-controlled manifest data during backup restoration.</p>
+            </div>
+            <div class="featured-side">
+              <dl>
+                <div><dt>Class</dt><dd>Unsafe Deserialization</dd></div>
+                <div><dt>Impact</dt><dd>Remote Code Execution</dd></div>
+                <div><dt>Access</dt><dd>Authenticated</dd></div>
+              </dl>
+              <a href="/research/cve-2026-26978/" class="feature-link">Read research →</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading"><div><span class="section-index">02 / RECENT</span><h2>Recent research</h2></div></div>
+        <div class="research-grid">{recentResearch.map((item) => <ResearchCard {...item} />)}</div>
+      </div>
+    </section>
+
+    <section class="section section-bordered">
+      <div class="container">
+        <div class="section-heading"><div><span class="section-index">03 / FOCUS</span><h2>Research areas</h2></div></div>
+        <div class="areas">
+          {researchAreas.map(([number,title,text]) => (
+            <article class="area"><span class="area-number">{number}</span><div><h3>{title}</h3><p>{text}</p></div><span class="area-arrow">↗</span></article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="statement section-bordered">
+      <div class="container statement-inner">
+        <span class="section-index">04 / PRINCIPLE</span>
+        <blockquote>Understand the vulnerability.<span>Demonstrate the impact.</span>Improve the security.</blockquote>
+        <p>Research is conducted for defensive security, technical understanding and responsible vulnerability disclosure.</p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

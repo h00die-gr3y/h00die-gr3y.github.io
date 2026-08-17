@@ -1,0 +1,30 @@
+---
+import { getCollection, render } from 'astro:content';
+import ResearchLayout from '../../layouts/ResearchLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('research');
+  const knowledgeEntries = (await getCollection('knowledgeBase')).filter((item) => item.data.status === 'published');
+  const articles = (await getCollection('articles')).filter((item) => item.data.status === 'published');
+
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: {
+      entry,
+      relatedKnowledge: knowledgeEntries
+        .filter((item) => item.data.relatedResearch.some((related) => related.slug === entry.id))
+        .map((item) => ({ slug: item.id, label: item.data.title })),
+      relatedArticles: articles
+        .filter((item) => item.data.relatedResearch.some((related) => related.slug === entry.id))
+        .map((item) => ({ slug: item.id, label: item.data.title })),
+    },
+  }));
+}
+
+const { entry, relatedKnowledge, relatedArticles } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<ResearchLayout data={entry.data} relatedKnowledge={relatedKnowledge} relatedArticles={relatedArticles}>
+  <Content />
+</ResearchLayout>

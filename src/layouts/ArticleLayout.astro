@@ -1,0 +1,82 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const { data, relatedKnowledge = [] } = Astro.props;
+---
+
+<BaseLayout
+  title={`${data.title} — h00die-gr3y`}
+  description={data.description}
+  ogType="article"
+  schemaType="Article"
+  publishedTime={data.published}
+  modifiedTime={data.revised}
+  keywords={data.topics}
+>
+  <Header />
+  <main id="main-content" tabindex="-1">
+    <section class="article-detail-hero">
+      <div class="container">
+        <div class="article-detail-labels">
+          <span class="section-index">ARTICLE</span>
+          {data.topics.slice(0, 2).map((topic) => <span class="article-topic-label">{topic.toUpperCase()}</span>)}
+        </div>
+        <h1>{data.title}</h1>
+        <p>{data.description}</p>
+        <div class="article-provenance">
+          Published {data.published}
+          {data.revised !== data.published && <> · updated {data.revised}</>}
+        </div>
+      </div>
+    </section>
+
+    <section class="article-detail section-bordered">
+      <div class="container article-detail-grid">
+        <article class="research-body article-body">
+          <slot />
+        </article>
+
+        <aside class="research-sidebar article-sidebar">
+          <div class="meta-panel">
+            <h2>Article metadata</h2>
+            <dl>
+              <div><dt>Published</dt><dd>{data.published}</dd></div>
+              {data.revised !== data.published && <div><dt>Updated</dt><dd>{data.revised}</dd></div>}
+              <div><dt>Topics</dt><dd>{data.topics.join(', ')}</dd></div>
+            </dl>
+          </div>
+
+          {data.relatedResearch?.length > 0 && (
+            <div class="meta-panel">
+              <h2>Related research</h2>
+              <ul class="meta-links article-related-links">
+                {data.relatedResearch.map((item) => (
+                  <li><a href={`/research/${item.slug}/`}>{item.label} →</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {relatedKnowledge.length > 0 && (
+            <div class="meta-panel">
+              <h2>Related knowledge</h2>
+              <ul class="meta-links article-related-links">
+                {relatedKnowledge.map((item) => (
+                  <li><a href={`/knowledge-base/${item.slug}/`}>{item.label} →</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div class="meta-panel archive-note">
+            <h2>Article scope</h2>
+            <p>Long-form technical writing that connects methods, techniques and lessons across individual vulnerability records.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

@@ -1,0 +1,125 @@
+---
+const { entries, mode = 'research' } = Astro.props;
+const years = [...new Set(entries.map((e) => e.data.published.slice(0, 4)))].sort().reverse();
+---
+
+<div class="archive-browser" data-archive-browser>
+  <div class="archive-toolbar">
+    <label class="archive-search">
+      <span>Search</span>
+      <input type="search" placeholder="CVE, vendor, product, keyword…" autocomplete="off" spellcheck="false" aria-controls="research-archive-results" aria-describedby="archive-filter-hint" data-archive-search />
+    </label>
+
+    <label>
+      <span>Research origin</span>
+      <select aria-controls="research-archive-results" data-archive-origin>
+        <option value="">All research</option>
+        <option value="original-research">Original research</option>
+        <option value="technical-analysis">Technical analysis</option>
+      </select>
+    </label>
+
+    {mode !== 'exploits' && (
+      <label>
+        <span>Research activity</span>
+        <select aria-controls="research-archive-results" data-archive-output>
+          <option value="">All research</option>
+          <option value="exploit-development">Exploit development</option>
+        </select>
+      </label>
+    )}
+
+    <label>
+      <span>Year</span>
+      <select aria-controls="research-archive-results" data-archive-year>
+        <option value="">All years</option>
+        {years.map((year) => <option value={year}>{year}</option>)}
+      </select>
+    </label>
+  </div>
+
+  <div class="archive-resultline">
+    <span role="status" aria-live="polite" aria-atomic="true"><strong data-visible-count>{entries.length}</strong> entries</span>
+    <span class="archive-hint" id="archive-filter-hint">Filter locally — no external search service</span>
+  </div>
+
+  <div class="archive-list" id="research-archive-results">
+    {entries.map((entry) => {
+      const d = entry.data;
+      const originLabel = d.researchType === 'original-research' ? 'ORIGINAL RESEARCH' : 'TECHNICAL ANALYSIS';
+      const toolTypes = [...new Set(d.exploitArtifacts.map((tool) => tool.type))];
+      const searchText = [d.cve, d.title, d.vendor, ...d.products, ...d.weaknesses, ...toolTypes, d.description].filter(Boolean).join(' ').toLowerCase();
+      return (
+        <article
+          class="archive-entry"
+          data-archive-entry
+          data-search={searchText}
+          data-origin={d.researchType}
+          data-exploit={d.exploitDevelopment ? 'true' : 'false'}
+          data-artifacts={toolTypes.join(',')}
+          data-year={d.published.slice(0, 4)}
+        >
+          <div class="archive-entry-top">
+            <div class="archive-type-list">
+              <span class="card-type">{originLabel}</span>
+              {d.exploitDevelopment && <span class="card-type card-type-secondary">EXPLOIT DEVELOPMENT</span>}
+            </div>
+            <time datetime={d.published}>{d.published}</time>
+          </div>
+          <h2><a href={`/research/${entry.id}/`}>{d.title}</a></h2>
+          <p>{d.description}</p>
+          <div class="archive-entry-meta">
+            {d.vendor && <span>{d.vendor}</span>}
+            {d.cvss && <span>CVSS {d.cvss.score.toFixed(1)} {d.cvss.severity}</span>}
+            {mode === 'exploits' && toolTypes.map((type) => (
+              <span>{type === 'metasploit' ? 'Metasploit' : type === 'nuclei' ? 'Nuclei' : type === 'python' ? 'Python' : type === 'poc' ? 'PoC' : type === 'script' ? 'Script' : 'Implementation'}</span>
+            ))}
+            {d.editorialStatus !== 'archived' && <span>Edited archive</span>}
+          </div>
+          <a class="archive-read" href={`/research/${entry.id}/`}>Read research →</a>
+        </article>
+      );
+    })}
+  </div>
+
+  <p class="archive-empty" data-archive-empty hidden>No matching research entries.</p>
+</div>
+
+<script>
+  document.querySelectorAll('[data-archive-browser]').forEach((root) => {
+    const search = root.querySelector('[data-archive-search]');
+    const origin = root.querySelector('[data-archive-origin]');
+    const output = root.querySelector('[data-archive-output]');
+    const year = root.querySelector('[data-archive-year]');
+    const entries = [...root.querySelectorAll('[data-archive-entry]')];
+    const count = root.querySelector('[data-visible-count]');
+    const empty = root.querySelector('[data-archive-empty]');
+
+    const apply = () => {
+      const q = (search?.value || '').trim().toLowerCase();
+      const wantedOrigin = origin?.value || '';
+      const wantedOutput = output?.value || '';
+      const wantedYear = year?.value || '';
+      let visible = 0;
+
+      entries.forEach((entry) => {
+        const matchesSearch = !q || (entry.dataset.search || '').includes(q);
+        const matchesOrigin = !wantedOrigin || entry.dataset.origin === wantedOrigin;
+        const matchesYear = !wantedYear || entry.dataset.year === wantedYear;
+        const exploit = entry.dataset.exploit === 'true';
+        const matchesOutput = !wantedOutput || (wantedOutput === 'exploit-development' && exploit);
+        const show = matchesSearch && matchesOrigin && matchesOutput && matchesYear;
+        entry.hidden = !show;
+        if (show) visible += 1;
+      });
+
+      if (count) count.textContent = String(visible);
+      if (empty) empty.hidden = visible !== 0;
+    };
+
+    search?.addEventListener('input', apply);
+    origin?.addEventListener('change', apply);
+    output?.addEventListener('change', apply);
+    year?.addEventListener('change', apply);
+  });
+</script>

@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ResearchArchive from '../../components/ResearchArchive.astro';
+
+const entries = (await getCollection('research')).sort((a, b) => b.data.published.localeCompare(a.data.published));
+const original = entries.filter((e) => e.data.researchType === 'original-research').length;
+const exploitDevelopment = entries.filter((e) => e.data.exploitDevelopment).length;
+---
+
+<BaseLayout title="Research — h00die-gr3y" description="Original vulnerability research, technical analysis and exploit development by h00die-gr3y.">
+  <Header />
+  <main id="main-content" tabindex="-1">
+    <section class="page-hero research-index-hero">
+      <div class="container">
+        <span class="section-index">RESEARCH / ARCHIVE</span>
+        <h1>Security research</h1>
+        <p>Original discoveries, independent technical analysis and practical exploit development preserved from the h00die-gr3y research archive.</p>
+      </div>
+    </section>
+
+    <section class="archive-stats section-bordered">
+      <div class="container stats-grid">
+        <div class="stat"><strong>{entries.length}</strong><span>Research entries</span></div>
+        <div class="stat"><strong>{original}</strong><span>Original discoveries</span></div>
+        <div class="stat"><strong>{exploitDevelopment}</strong><span>Exploit development</span></div>
+      </div>
+    </section>
+
+    <section class="section section-bordered">
+      <div class="container">
+        <ResearchArchive entries={entries} mode="research" />
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

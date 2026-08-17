@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  target: string;
+}
+
+const { title, description, target } = Astro.props;
+---
+
+<BaseLayout
+  title={`${title} — h00die-gr3y`}
+  description={description}
+  canonicalPath={target}
+  robots="noindex,follow"
+  redirectTo={target}
+>
+  <Header />
+  <main id="main-content" tabindex="-1">
+    <section class="page-hero">
+      <div class="container narrow">
+        <span class="section-index">MOVED</span>
+        <h1>{title}</h1>
+        <p>{description}</p>
+        <p><a class="button button-primary" href={target}>Continue →</a></p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

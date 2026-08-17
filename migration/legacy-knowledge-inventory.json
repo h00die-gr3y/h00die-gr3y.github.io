@@ -1,0 +1,155 @@
+[
+  {
+    "path": "_pages/ad-domain-attack.md",
+    "title": "<span style=\"color:lime\">Active Directory Domain Attacks</span>",
+    "categories": "",
+    "permalink": "/ad-domain-attack/",
+    "suggestedCategory": "Infrastructure",
+    "score": 6,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/tips-and-tricks.md",
+    "title": "<span style=\"color:lime\">Metasploit Tips and Tricks</span>",
+    "categories": "",
+    "permalink": "/tips-and-tricks/",
+    "suggestedCategory": "Infrastructure",
+    "score": 4,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/module-development.md",
+    "title": "<span style=\"color:lime\">Metasploit Module Development</span>",
+    "categories": "",
+    "permalink": "/module-development/",
+    "suggestedCategory": "Exploit Development",
+    "score": 3,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_posts/2024-08-26-howto-uart-shell.md",
+    "title": "How to spawn an UART shell?",
+    "categories": "",
+    "permalink": "",
+    "suggestedCategory": "IoT & Embedded",
+    "score": 3,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/hackingstuff.md",
+    "title": "<span style=\"color:lime\">Hacking Stuff</span>",
+    "categories": "",
+    "permalink": "/hackingstuff/",
+    "suggestedCategory": "Web Applications",
+    "score": 2,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/iot-uart-shell.md",
+    "title": "<span style=\"color:lime\">IoT Hacking - Spawning UART shells</span>",
+    "categories": "",
+    "permalink": "/iot-uart-shell/",
+    "suggestedCategory": "IoT & Embedded",
+    "score": 2,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/references.md",
+    "title": "References",
+    "categories": "",
+    "permalink": "/references/",
+    "suggestedCategory": "Exploit Development",
+    "score": 1,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_posts/2024-07-16-geo-server-exploit.md",
+    "title": "GeoServer Metasploit exploit module",
+    "categories": "",
+    "permalink": "",
+    "suggestedCategory": "Exploit Development",
+    "score": 1,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_posts/2024-07-31-openmediavault-exploit.md",
+    "title": "OpenMediaVault Metasploit exploit module",
+    "categories": "",
+    "permalink": "",
+    "suggestedCategory": "Exploit Development",
+    "score": 1,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/404.md",
+    "title": "Page Not Found",
+    "categories": "",
+    "permalink": "/404/",
+    "suggestedCategory": "Unclassified",
+    "score": 0,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/about.md",
+    "title": "<span style=\"color:lime\">About this site</span>",
+    "categories": "",
+    "permalink": "/about/",
+    "suggestedCategory": "Unclassified",
+    "score": 0,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/blog.md",
+    "title": "My latest Blogs",
+    "categories": "",
+    "permalink": "/blog/",
+    "suggestedCategory": "Unclassified",
+    "score": 0,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/disclaimer.md",
+    "title": "Dear Visitor,",
+    "categories": "",
+    "permalink": "/disclaimer/",
+    "suggestedCategory": "Unclassified",
+    "score": 0,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/log4shell.md",
+    "title": "<span style=\"color:lime\">Log4shell Attacks</span>",
+    "categories": "",
+    "permalink": "/log4shell/",
+    "suggestedCategory": "Unclassified",
+    "score": 0,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/under-construction.md",
+    "title": "<span style=\"color:lime\">Under construction</span>",
+    "categories": "",
+    "permalink": "/under-construction/",
+    "suggestedCategory": "Unclassified",
+    "score": 0,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_pages/zerodays.md",
+    "title": "0-days exploits",
+    "categories": "",
+    "permalink": "/zerodays/",
+    "suggestedCategory": "Unclassified",
+    "score": 0,
+    "decision": "REVIEW"
+  },
+  {
+    "path": "_posts/2024-07-15-my-first-post.md",
+    "title": "Welcome to my site!",
+    "categories": "",
+    "permalink": "",
+    "suggestedCategory": "Unclassified",
+    "score": 0,
+    "decision": "REVIEW"
+  }
+]

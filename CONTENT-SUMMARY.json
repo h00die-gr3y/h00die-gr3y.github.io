@@ -1,0 +1,33 @@
+{
+  "entries": 63,
+  "cves": 62,
+  "non_cve": 1,
+  "original_research": 12,
+  "technical_analysis": 51,
+  "exploit_development": 58,
+  "with_exploit_artifacts": 54,
+  "exploit_artifacts": 57,
+  "exploit_artifact_types": {
+    "metasploit": 56,
+    "nuclei": 1,
+    "python": 0,
+    "poc": 0,
+    "script": 0,
+    "other": 0
+  },
+  "metasploit_links": {
+    "official_modules": 55,
+    "local_fallbacks": 1,
+    "artifacts_with_contribution_pr": 45
+  },
+  "exploit_development_without_linked_artifact": 4,
+  "editorial_status": {
+    "original_research_polished": 12,
+    "technical_analysis_polished": 49,
+    "technical_analysis_source_stubs": 2,
+    "source_stubs": [
+      "CVE-2024-11320",
+      "CVE-2025-32433"
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const { data, moreInCategory = [] } = Astro.props;
+const categoryLabels = {
+  'web-applications': 'Web Applications',
+  'exploit-development': 'Exploit Development',
+  'infrastructure': 'Infrastructure',
+  'iot-embedded': 'IoT & Embedded',
+  'tools-techniques': 'Tools & Techniques',
+};
+---
+
+<BaseLayout
+  title={`${data.title} — Knowledge Base — h00die-gr3y`}
+  description={data.description}
+  ogType="article"
+  schemaType="TechArticle"
+  keywords={data.topics}
+>
+  <Header />
+  <main id="main-content" tabindex="-1">
+    <section class="kb-detail-hero">
+      <div class="container">
+        <div class="kb-detail-labels">
+          <span class="section-index">KNOWLEDGE BASE</span>
+          <span class="kb-topic-label">{categoryLabels[data.category]?.toUpperCase()}</span>
+        </div>
+        <h1>{data.title}</h1>
+        <p>{data.description}</p>
+      </div>
+    </section>
+
+    <section class="kb-detail section-bordered">
+      <div class="container kb-detail-grid">
+        <article class="research-body kb-body">
+          <slot />
+        </article>
+
+        <aside class="research-sidebar kb-sidebar">
+          <div class="meta-panel">
+            <h2>Reference metadata</h2>
+            <dl>
+              <div><dt>Category</dt><dd>{categoryLabels[data.category]}</dd></div>
+              {data.topics?.length > 0 && <div><dt>Topics</dt><dd>{data.topics.join(', ')}</dd></div>}
+            </dl>
+          </div>
+
+          {data.relatedResearch?.length > 0 && (
+            <div class="meta-panel">
+              <h2>Related research</h2>
+              <ul class="meta-links">
+                {data.relatedResearch.map((item) => (
+                  <li><a href={`/research/${item.slug}/`}>{item.label} →</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {data.relatedArticles?.length > 0 && (
+            <div class="meta-panel">
+              <h2>Related articles</h2>
+              <ul class="meta-links">
+                {data.relatedArticles.map((item) => (
+                  <li><a href={`/articles/${item.slug}/`}>{item.label} →</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {moreInCategory.length > 0 && (
+            <div class="meta-panel">
+              <h2>More in this area</h2>
+              <ul class="meta-links">
+                {moreInCategory.map((item) => (
+                  <li><a href={`/knowledge-base/${item.slug}/`}>{item.label} →</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div class="meta-panel archive-note">
+            <h2>Knowledge Base scope</h2>
+            <p>Reusable technical notes and methodology. Vulnerability-specific evidence remains in Research.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

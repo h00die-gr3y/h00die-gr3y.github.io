@@ -1,0 +1,16 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ResearchArchive from '../../components/ResearchArchive.astro';
+const entries = (await getCollection('research')).filter((e) => e.data.cve).sort((a, b) => b.data.published.localeCompare(a.data.published));
+---
+<BaseLayout title="CVEs — h00die-gr3y" description="CVE-oriented vulnerability research archive by h00die-gr3y.">
+  <Header />
+  <main id="main-content" tabindex="-1">
+    <section class="page-hero"><div class="container"><span class="section-index">RESEARCH / CVE INDEX</span><h1>CVEs</h1><p>{entries.length} CVE research entries. Filter by research origin, exploit output and publication year.</p></div></section>
+    <section class="section section-bordered"><div class="container"><ResearchArchive entries={entries} mode="cves" /></div></section>
+  </main>
+  <Footer />
+</BaseLayout>

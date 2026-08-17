@@ -1,0 +1,32 @@
+---
+import { getCollection, render } from 'astro:content';
+import KnowledgeLayout from '../../layouts/KnowledgeLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = (await getCollection('knowledgeBase')).filter((entry) => entry.data.status === 'published');
+
+  return entries.map((entry) => {
+    const entryTopics = new Set(entry.data.topics.map((topic) => topic.toLowerCase()));
+    const moreInCategory = entries
+      .filter((candidate) => candidate.id !== entry.id && candidate.data.category === entry.data.category)
+      .map((candidate) => ({
+        slug: candidate.id,
+        label: candidate.data.title,
+        overlap: candidate.data.topics.filter((topic) => entryTopics.has(topic.toLowerCase())).length,
+        order: candidate.data.order,
+      }))
+      .sort((a, b) => b.overlap - a.overlap || a.order - b.order || a.label.localeCompare(b.label))
+      .slice(0, 3)
+      .map(({ slug, label }) => ({ slug, label }));
+
+    return { params: { id: entry.id }, props: { entry, moreInCategory } };
+  });
+}
+
+const { entry, moreInCategory } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<KnowledgeLayout data={entry.data} moreInCategory={moreInCategory}>
+  <Content />
+</KnowledgeLayout>

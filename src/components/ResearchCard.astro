@@ -1,0 +1,19 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  text: string;
+  meta: string;
+  href?: string;
+}
+
+const { eyebrow, title, text, meta, href = '/research/' } = Astro.props;
+---
+
+<article class="research-card">
+  <div class="card-type">{eyebrow}</div>
+  <h3>{title}</h3>
+  <p>{text}</p>
+  <div class="card-meta">{meta}</div>
+  <a href={href} aria-label={`Read ${title}`}>Read research <span>→</span></a>
+</article>

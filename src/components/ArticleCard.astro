@@ -1,0 +1,25 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  published: string;
+  topics: string[];
+  href: string;
+  featured?: boolean;
+}
+
+const { title, description, published, topics, href, featured = false } = Astro.props;
+---
+
+<article class:list={["article-card", { "article-card-featured": featured }]}>
+  <div class="article-card-top">
+    <span class="card-type">ARTICLE</span>
+    <span class="article-date">{published}</span>
+  </div>
+  <h2><a href={href}>{title}</a></h2>
+  <p>{description}</p>
+  <div class="article-topics">
+    {topics.map((topic) => <span>{topic}</span>)}
+  </div>
+  <a class="article-read" href={href} aria-label={`Read ${title}`}>Read article <span>→</span></a>
+</article>
