@@ -12,6 +12,19 @@ const research = defineCollection({
     published: z.string(),
     revised: z.string(),
     disclosureDate: z.string().nullable(),
+    researchId: z.string().regex(/^HGR-\d{4}-\d{3}$/).nullable().optional(),
+    disclosure: z.object({
+      status: z.enum(['embargoed', 'coordinated', 'published']),
+      credit: z.string().nullable().optional(),
+      reported: z.string().nullable().optional(),
+      advisories: z.array(z.object({
+        type: z.enum(['researcher', 'vendor', 'github', 'other']),
+        label: z.string(),
+        id: z.string().nullable().optional(),
+        url: z.string(),
+        published: z.string().nullable().optional(),
+      })).default([]),
+    }).nullable().optional(),
     source: z.object({
       platform: z.string(),
       url: z.string(),

@@ -1,0 +1,47 @@
+---
+const { data } = Astro.props;
+const disclosure = data.disclosure;
+
+const statusLabels = {
+  embargoed: 'Embargoed',
+  coordinated: 'Coordinated disclosure',
+  published: 'Published',
+};
+
+const advisoryTypeLabels = {
+  researcher: 'Researcher advisory',
+  vendor: 'Vendor advisory',
+  github: 'GitHub advisory',
+  other: 'Advisory',
+};
+---
+
+{disclosure && disclosure.advisories?.length > 0 && (
+  <div class="meta-panel">
+    <h2>Disclosure</h2>
+    <dl>
+      {data.researchId && <div><dt>Research ID</dt><dd>{data.researchId}</dd></div>}
+      <div><dt>Status</dt><dd>{statusLabels[disclosure.status] ?? disclosure.status}</dd></div>
+      {disclosure.reported && <div><dt>Reported</dt><dd>{disclosure.reported}</dd></div>}
+      {data.disclosureDate && <div><dt>Disclosure</dt><dd>{data.disclosureDate}</dd></div>}
+      {disclosure.credit && <div><dt>Credit</dt><dd>{disclosure.credit}</dd></div>}
+    </dl>
+
+    <ul class="meta-links implementation-links">
+      {disclosure.advisories.map((advisory) => (
+        <li>
+          <div class="implementation-name">
+            {advisory.id ?? advisory.label}
+            <span class="tool-kind">[{advisoryTypeLabels[advisory.type] ?? advisory.type}]</span>
+          </div>
+          <div class="implementation-actions">
+            <a href={advisory.url} target="_blank" rel="noopener noreferrer">
+              {advisory.label} ↗<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </div>
+          {advisory.published && <div class="implementation-name">Published {advisory.published}</div>}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}

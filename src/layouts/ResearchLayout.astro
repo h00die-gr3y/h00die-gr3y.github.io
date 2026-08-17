@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import DisclosurePanel from '../components/DisclosurePanel.astro';
 
 const { data, relatedKnowledge = [], relatedArticles = [] } = Astro.props;
 const typeLabel = data.researchType === 'original-research' ? 'ORIGINAL RESEARCH' : 'TECHNICAL ANALYSIS';
@@ -38,6 +39,7 @@ const artifactTypeLabels = {
         <div class="research-detail-labels">
           <span class="section-index">{typeLabel}</span>
           {data.exploitDevelopment && <span class="research-output-label">EXPLOIT DEVELOPMENT</span>}
+          {(data.disclosure?.advisories?.length ?? 0) > 0 && <span class="research-output-label">PUBLISHED ADVISORY</span>}
           {data.cve && <span class="research-cve">{data.cve}</span>}
         </div>
         <h1>{data.title}</h1>
@@ -70,7 +72,6 @@ const artifactTypeLabels = {
               {data.weaknesses.length > 0 && <div><dt>CWE</dt><dd>{data.weaknesses.join(', ')}</dd></div>}
               {data.cvss && <div><dt>CVSS</dt><dd>{data.cvss.score.toFixed(1)} · {data.cvss.severity}</dd></div>}
               <div><dt>Published</dt><dd>{data.published}</dd></div>
-              {data.disclosureDate && <div><dt>Disclosure</dt><dd>{data.disclosureDate}</dd></div>}
               <div><dt>Source</dt><dd>{data.source.platform}</dd></div>
             </dl>
           </div>
@@ -81,6 +82,8 @@ const artifactTypeLabels = {
               <ul>{data.vulnerableVersions.map((v) => <li>{v}</li>)}</ul>
             </div>
           )}
+
+          <DisclosurePanel data={data} />
 
           {relatedKnowledge.length > 0 && (
             <div class="meta-panel">

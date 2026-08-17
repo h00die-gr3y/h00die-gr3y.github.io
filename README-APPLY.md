@@ -1,32 +1,41 @@
-# Apply h00die-gr3y Astro v2.16
+# Apply h00die-gr3y v3.1
 
-Apply this overlay after v2.15:
+Apply this package over the current `redesign-astro` worktree.
 
 ```bash
 cd /Users/hgiessen/h00die-gr3y-astro
-unzip -o ~/Downloads/h00die-gr3y-astro-source-v2.16.zip -d .
-rm -rf .astro
+
+git pull
+unzip -o ~/Downloads/h00die-gr3y-astro-source-v3.1.zip -d .
+node scripts/apply-v3.1.mjs
+
 node scripts/qa-site.mjs
 npm run build
 npm run dev
 ```
 
-Recommended manual checks:
+Review:
 
-- Tab from the top of the page and confirm `Skip to content` appears.
-- Confirm the current navigation section is highlighted.
-- Test the Research/CVE filters with keyboard only.
-- Check a long Research or Knowledge Base page at desktop, tablet and phone widths.
-- Check a page containing a wide command/code block.
-- Check the mobile menu around 600px and below.
+- `/advisories/`
+- `/research/cve-2025-4653/`
+- `/research/cve-2025-4678/`
+- `/research/cve-2025-5946/`
+- `/research/`
+- `/about/`
 
-Before committing:
+Before publishing:
 
 ```bash
-node scripts/qa-site.mjs
-npm run build
-git diff
 git status
+git diff
 ```
 
-See `RELEASE-QA.md` for the v2.16 changes.
+When satisfied:
+
+```bash
+git add .
+git commit -m "Add disclosure and advisory integration v3.1"
+git push
+```
+
+The existing GitHub Action will then run QA, build Astro and deploy `dist/` to the production `master` branch.

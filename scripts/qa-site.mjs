@@ -93,6 +93,34 @@ for (const file of markdownFiles) {
   }
 }
 
+
+// Disclosure/advisory integration: the three historical researcher GHSAs must remain attached
+// to their existing first-class Research entries, not duplicated as separate content.
+const expectedResearcherAdvisories = new Map([
+  ['cve-2025-4653.md', 'GHSA-m4f8-9c8x-8f3f'],
+  ['cve-2025-4678.md', 'GHSA-wcqx-vw37-9pv8'],
+  ['cve-2025-5946.md', 'GHSA-g6r8-jjf7-w7gh'],
+]);
+let researcherAdvisoryCount = 0;
+for (const [name, ghsa] of expectedResearcherAdvisories) {
+  const target = researchFiles.find((candidate) => path.basename(candidate) === name);
+  if (!target) {
+    failures.push(`Missing Research entry expected for ${ghsa}: ${name}.`);
+    continue;
+  }
+  const text = read(target);
+  if (!text.includes(`id: ${ghsa}`)) failures.push(`${rel(target)} is missing structured advisory ${ghsa}.`);
+  if (!text.includes('type: researcher')) failures.push(`${rel(target)} is missing researcher advisory classification.`);
+  const referencesBody = text.split('## References')[1]?.split('## ')[0] ?? '';
+  if (referencesBody.includes(ghsa)) failures.push(`${rel(target)} duplicates ${ghsa} in the body References section.`);
+  researcherAdvisoryCount += 1;
+}
+
+const advisoriesPage = path.join(src, 'pages', 'advisories', 'index.astro');
+if (!fs.existsSync(advisoriesPage)) failures.push('Missing /advisories/ page.');
+const sitemap = read(path.join(src, 'pages', 'sitemap.xml.ts'));
+if (!sitemap.includes("{ path: '/advisories/'")) failures.push('Sitemap is missing /advisories/.');
+
 // Check Markdown code fences are balanced.
 for (const file of markdownFiles) {
   const text = read(file);
@@ -103,6 +131,7 @@ for (const file of markdownFiles) {
 notes.push(`Research entries: ${researchFiles.length}`);
 notes.push(`Knowledge Base entries: ${kbFiles.length}`);
 notes.push(`Articles: ${articleFiles.length}`);
+notes.push(`Published researcher advisories: ${researcherAdvisoryCount}`);
 notes.push(`Astro files checked: ${astroFiles.length}`);
 notes.push(`Markdown files checked: ${markdownFiles.length}`);
 

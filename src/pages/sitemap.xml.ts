@@ -17,12 +17,14 @@ export const GET: APIRoute = async ({ site }) => {
   const knowledge = (await getCollection('knowledgeBase')).filter((entry) => entry.data.status === 'published');
 
   const latestResearch = maxDate(research.map((entry) => entry.data.revised || entry.data.published));
+  const latestAdvisory = maxDate(research.flatMap((entry) => entry.data.disclosure?.advisories.map((item) => item.published ?? '') ?? []));
   const latestArticle = maxDate(articles.map((entry) => entry.data.revised || entry.data.published));
   const latestEditorial = maxDate([latestResearch ?? '', latestArticle ?? '']);
 
   const urls: Array<{ path: string; lastmod?: string }> = [
     { path: '/', lastmod: latestEditorial },
     { path: '/research/', lastmod: latestResearch },
+    { path: '/advisories/', lastmod: latestAdvisory || latestResearch },
     { path: '/cves/', lastmod: latestResearch },
     { path: '/exploits/', lastmod: latestResearch },
     { path: '/articles/', lastmod: latestArticle },

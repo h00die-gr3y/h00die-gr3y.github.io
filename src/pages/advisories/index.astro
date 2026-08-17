@@ -1,0 +1,94 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const entries = (await getCollection('research'))
+  .filter((entry) => entry.data.disclosure?.status !== 'embargoed' && (entry.data.disclosure?.advisories?.length ?? 0) > 0)
+  .sort((a, b) => {
+    const dateA = a.data.disclosure?.advisories.map((item) => item.published ?? '').sort().at(-1) ?? a.data.published;
+    const dateB = b.data.disclosure?.advisories.map((item) => item.published ?? '').sort().at(-1) ?? b.data.published;
+    return dateB.localeCompare(dateA);
+  });
+
+const researcherAdvisories = entries.reduce(
+  (count, entry) => count + (entry.data.disclosure?.advisories.filter((item) => item.type === 'researcher').length ?? 0),
+  0,
+);
+const cveLinked = entries.filter((entry) => Boolean(entry.data.cve)).length;
+const typeLabels = {
+  researcher: 'RESEARCHER ADVISORY',
+  vendor: 'VENDOR ADVISORY',
+  github: 'GITHUB ADVISORY',
+  other: 'ADVISORY',
+};
+---
+
+<BaseLayout
+  title="Published Advisories — h00die-gr3y"
+  description="Published security advisories connected to original h00die-gr3y vulnerability research."
+>
+  <Header />
+  <main id="main-content" tabindex="-1">
+    <section class="page-hero">
+      <div class="container">
+        <span class="section-index">RESEARCH / DISCLOSURE</span>
+        <h1>Published advisories</h1>
+        <p>Disclosure records connected to original vulnerability research. The Research article remains the detailed technical record; CVEs, vendor bulletins and security advisories document the public disclosure trail.</p>
+        <div class="hero-actions">
+          <a class="button button-secondary" href="/research/">Back to research <span>→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="archive-stats section-bordered">
+      <div class="container stats-grid">
+        <div class="stat"><strong>{entries.length}</strong><span>Research entries</span></div>
+        <div class="stat"><strong>{researcherAdvisories}</strong><span>Researcher GHSAs</span></div>
+        <div class="stat"><strong>{cveLinked}</strong><span>CVE-linked</span></div>
+      </div>
+    </section>
+
+    <section class="section section-bordered">
+      <div class="container">
+        <div class="research-grid advisory-grid">
+          {entries.map((entry) => {
+            const disclosure = entry.data.disclosure;
+            const primary = disclosure?.advisories.find((item) => item.type === 'researcher' || item.type === 'github') ?? disclosure?.advisories[0];
+            return (
+              <article class="research-card advisory-card">
+                <div class="card-type">{primary ? typeLabels[primary.type] : 'ADVISORY'}</div>
+                <h3>{entry.data.title}</h3>
+                <p>{entry.data.description}</p>
+                <div class="card-meta">
+                  {entry.data.cve ?? entry.data.researchId ?? 'RESEARCH'}
+                  {entry.data.vendor ? ` · ${entry.data.vendor}` : ''}
+                  {primary?.published ? ` · ${primary.published}` : ''}
+                </div>
+                <div class="advisory-actions">
+                  {disclosure?.advisories.map((advisory) => (
+                    <a href={advisory.url} target="_blank" rel="noopener noreferrer">
+                      {advisory.id ?? advisory.label} ↗<span class="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  ))}
+                </div>
+                <a href={`/research/${entry.id}/`} aria-label={`Open research for ${entry.data.title}`}>
+                  Open research <span>→</span>
+                </a>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .advisory-card { min-height: 370px; }
+  .advisory-actions { display: grid; gap: 8px; margin-top: 20px; }
+  .advisory-actions a { color: var(--text-soft); font-family: var(--font-mono); font-size: 11px; line-height: 1.5; }
+  .advisory-actions a:hover { color: var(--accent); }
+</style>
