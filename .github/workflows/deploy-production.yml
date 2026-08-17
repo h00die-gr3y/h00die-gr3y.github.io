@@ -1,0 +1,56 @@
+name: Deploy Astro production
+
+on:
+  push:
+    branches:
+      - redesign-astro
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: production-pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run release QA
+        run: node scripts/qa-site.mjs
+
+      - name: Build Astro site
+        run: npm run build
+
+      - name: Verify production output
+        run: |
+          test -f dist/index.html
+          test -f dist/404.html
+          test -f dist/sitemap.xml
+          test -f dist/rss.xml
+          test -f dist/robots.txt
+          test -f dist/.nojekyll
+
+      - name: Publish dist to master
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: master
+          publish_dir: ./dist
+          force_orphan: true
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          commit_message: 'Deploy h00die-gr3y v3.0 production'
