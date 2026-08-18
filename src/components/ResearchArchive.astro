@@ -46,6 +46,7 @@ const years = [...new Set(entries.map((e) => e.data.published.slice(0, 4)))].sor
   <div class="archive-list" id="research-archive-results">
     {entries.map((entry) => {
       const d = entry.data;
+      const siteNativeResearch = (d.source.provenance ?? 'attacker-kb-archive') === 'site-native';
       const originLabel = d.researchType === 'original-research' ? 'ORIGINAL RESEARCH' : 'TECHNICAL ANALYSIS';
       const toolTypes = [...new Set(d.exploitArtifacts.map((tool) => tool.type))];
       const searchText = [d.cve, d.title, d.vendor, ...d.products, ...d.weaknesses, ...toolTypes, d.description].filter(Boolean).join(' ').toLowerCase();
@@ -74,7 +75,7 @@ const years = [...new Set(entries.map((e) => e.data.published.slice(0, 4)))].sor
             {mode === 'exploits' && toolTypes.map((type) => (
               <span>{type === 'metasploit' ? 'Metasploit' : type === 'nuclei' ? 'Nuclei' : type === 'python' ? 'Python' : type === 'poc' ? 'PoC' : type === 'script' ? 'Script' : 'Implementation'}</span>
             ))}
-            {d.editorialStatus !== 'archived' && <span>Edited archive</span>}
+            {!siteNativeResearch && d.editorialStatus !== 'archived' && <span>Edited archive</span>}
           </div>
           <a class="archive-read" href={`/research/${entry.id}/`}>Read research →</a>
         </article>

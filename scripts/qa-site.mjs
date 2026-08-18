@@ -24,6 +24,11 @@ function rel(file) {
   return path.relative(root, file).replaceAll(path.sep, '/');
 }
 
+function frontmatter(text) {
+  const match = text.match(/^---\n([\s\S]*?)\n---(?:\n|$)/);
+  return match?.[1] ?? '';
+}
+
 const astroFiles = walk(src).filter((file) => file.endsWith('.astro'));
 const markdownFiles = walk(path.join(src, 'content')).filter((file) => file.endsWith('.md'));
 const researchFiles = walk(path.join(src, 'content', 'research')).filter((file) => file.endsWith('.md'));
@@ -31,9 +36,56 @@ const kbFiles = walk(path.join(src, 'content', 'knowledge-base')).filter((file) 
 const articleFiles = walk(path.join(src, 'content', 'articles')).filter((file) => file.endsWith('.md'));
 
 // Release counts: these catch accidental content loss before deployment.
-if (researchFiles.length !== 63) failures.push(`Expected 63 research entries, found ${researchFiles.length}.`);
+if (researchFiles.length < 63) failures.push(`Expected at least 63 research entries, found ${researchFiles.length}.`);
 if (kbFiles.length !== 7) failures.push(`Expected 7 Knowledge Base entries, found ${kbFiles.length}.`);
 if (articleFiles.length !== 1) failures.push(`Expected 1 article, found ${articleFiles.length}.`);
+
+// Research publication provenance and public-repository embargo guard.
+let siteNativeResearchCount = 0;
+let attackerKbArchiveCount = 0;
+let researcherAdvisoryCount = 0;
+
+for (const file of researchFiles) {
+  const fm = frontmatter(read(file));
+  const sourceBlock = fm.match(/^source:\n((?: {2}[^\n]*\n?)*)/m)?.[1] ?? '';
+  const siteNativeResearch = /^ {2}provenance:\s*site-native\s*$/m.test(sourceBlock);
+  const sitePlatform = /^ {2}platform:\s*['\"]?h00die-gr3y['\"]?\s*$/m.test(sourceBlock);
+  const canonicalNativeUrl = /^ {2}url:\s*['\"]?https:\/\/h00die-gr3y\.github\.io\/research\/[^'\"\s]+\/?['\"]?\s*$/m.test(sourceBlock);
+  const embargoed = /^\s+status:\s*embargoed\s*$/m.test(fm);
+
+  researcherAdvisoryCount += (fm.match(/^\s*-\s+type:\s+researcher\s*$/gm) || []).length;
+
+  if (embargoed) {
+    failures.push(`${rel(file)} is marked embargoed but is stored in the public Research collection. Keep embargoed research outside this repository.`);
+  }
+
+  if (siteNativeResearch) {
+    siteNativeResearchCount += 1;
+    if (!sitePlatform) failures.push(`${rel(file)} uses site-native provenance but source.platform is not h00die-gr3y.`);
+    if (!canonicalNativeUrl) failures.push(`${rel(file)} uses site-native provenance but source.url is not its canonical /research/ URL.`);
+    if (/Rapid7 AttackerKB/i.test(sourceBlock)) failures.push(`${rel(file)} mixes site-native provenance with an AttackerKB source.`);
+  } else {
+    attackerKbArchiveCount += 1;
+    if (sitePlatform) failures.push(`${rel(file)} uses source.platform h00die-gr3y without source.provenance: site-native.`);
+  }
+}
+
+if (attackerKbArchiveCount !== 63) {
+  failures.push(`Expected the preserved AttackerKB baseline to remain 63 entries, found ${attackerKbArchiveCount}.`);
+}
+
+const contentConfig = read(path.join(src, 'content.config.ts'));
+if (!contentConfig.includes("provenance: z.enum(['attacker-kb-archive', 'site-native']).default('attacker-kb-archive')")) {
+  failures.push('Research schema is missing source provenance support.');
+}
+const researchLayout = read(path.join(src, 'layouts', 'ResearchLayout.astro'));
+if (!researchLayout.includes("sourceProvenance = data.source.provenance ?? 'attacker-kb-archive'")) {
+  failures.push('Research layout is missing site-native provenance handling.');
+}
+const researchArchive = read(path.join(src, 'components', 'ResearchArchive.astro'));
+if (!researchArchive.includes("!siteNativeResearch && d.editorialStatus !== 'archived'")) {
+  failures.push('Research archive can incorrectly label site-native research as an edited archive item.');
+}
 
 // Every rendered main region must expose the skip-link target.
 for (const file of astroFiles) {
@@ -101,7 +153,7 @@ const expectedResearcherAdvisories = new Map([
   ['cve-2025-4678.md', 'GHSA-wcqx-vw37-9pv8'],
   ['cve-2025-5946.md', 'GHSA-g6r8-jjf7-w7gh'],
 ]);
-let researcherAdvisoryCount = 0;
+let historicalResearcherAdvisoryCount = 0;
 for (const [name, ghsa] of expectedResearcherAdvisories) {
   const target = researchFiles.find((candidate) => path.basename(candidate) === name);
   if (!target) {
@@ -113,7 +165,7 @@ for (const [name, ghsa] of expectedResearcherAdvisories) {
   if (!text.includes('type: researcher')) failures.push(`${rel(target)} is missing researcher advisory classification.`);
   const referencesBody = text.split('## References')[1]?.split('## ')[0] ?? '';
   if (referencesBody.includes(ghsa)) failures.push(`${rel(target)} duplicates ${ghsa} in the body References section.`);
-  researcherAdvisoryCount += 1;
+  historicalResearcherAdvisoryCount += 1;
 }
 
 const advisoriesPage = path.join(src, 'pages', 'advisories', 'index.astro');
@@ -131,7 +183,10 @@ for (const file of markdownFiles) {
 notes.push(`Research entries: ${researchFiles.length}`);
 notes.push(`Knowledge Base entries: ${kbFiles.length}`);
 notes.push(`Articles: ${articleFiles.length}`);
-notes.push(`Published researcher advisories: ${researcherAdvisoryCount}`);
+notes.push(`AttackerKB archive entries: ${attackerKbArchiveCount}`);
+notes.push(`Site-native research entries: ${siteNativeResearchCount}`);
+notes.push(`Structured researcher advisories: ${researcherAdvisoryCount}`);
+notes.push(`Protected historical researcher advisories: ${historicalResearcherAdvisoryCount}`);
 notes.push(`Astro files checked: ${astroFiles.length}`);
 notes.push(`Markdown files checked: ${markdownFiles.length}`);
 

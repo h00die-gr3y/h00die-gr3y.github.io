@@ -26,6 +26,7 @@ const research = defineCollection({
       })).default([]),
     }).nullable().optional(),
     source: z.object({
+      provenance: z.enum(['attacker-kb-archive', 'site-native']).default('attacker-kb-archive'),
       platform: z.string(),
       url: z.string(),
     }),

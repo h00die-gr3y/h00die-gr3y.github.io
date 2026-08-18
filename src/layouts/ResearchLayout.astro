@@ -6,6 +6,8 @@ import DisclosurePanel from '../components/DisclosurePanel.astro';
 
 const { data, relatedKnowledge = [], relatedArticles = [] } = Astro.props;
 const typeLabel = data.researchType === 'original-research' ? 'ORIGINAL RESEARCH' : 'TECHNICAL ANALYSIS';
+const sourceProvenance = data.source.provenance ?? 'attacker-kb-archive';
+const siteNativeResearch = sourceProvenance === 'site-native';
 const seoKeywords = [...new Set([
   data.cve,
   data.vendor,
@@ -45,7 +47,7 @@ const artifactTypeLabels = {
         <h1>{data.title}</h1>
         <p>{data.description}</p>
         <div class="research-provenance">
-          Originally published on {data.source.platform} · {data.published}
+          {siteNativeResearch ? <>Published by {data.source.platform}</> : <>Originally published on {data.source.platform}</>} · {data.published}
           {data.revised !== data.published && <> · revised {data.revised}</>}
         </div>
       </div>
@@ -72,7 +74,7 @@ const artifactTypeLabels = {
               {data.weaknesses.length > 0 && <div><dt>CWE</dt><dd>{data.weaknesses.join(', ')}</dd></div>}
               {data.cvss && <div><dt>CVSS</dt><dd>{data.cvss.score.toFixed(1)} · {data.cvss.severity}</dd></div>}
               <div><dt>Published</dt><dd>{data.published}</dd></div>
-              <div><dt>Source</dt><dd>{data.source.platform}</dd></div>
+              <div><dt>{siteNativeResearch ? 'Publication' : 'Source'}</dt><dd>{data.source.platform}</dd></div>
             </dl>
           </div>
 
@@ -130,10 +132,17 @@ const artifactTypeLabels = {
             </div>
           )}
 
-          <div class="meta-panel archive-note">
-            <h2>Archive provenance</h2>
-            <p>This research was preserved from the h00die-gr3y AttackerKB archive before the platform's retirement.</p>
-          </div>
+          {siteNativeResearch ? (
+            <div class="meta-panel archive-note">
+              <h2>Publication provenance</h2>
+              <p>First published by h00die-gr3y as part of this research site.</p>
+            </div>
+          ) : (
+            <div class="meta-panel archive-note">
+              <h2>Archive provenance</h2>
+              <p>This research was preserved from the h00die-gr3y AttackerKB archive before the platform's retirement.</p>
+            </div>
+          )}
         </aside>
       </div>
     </section>

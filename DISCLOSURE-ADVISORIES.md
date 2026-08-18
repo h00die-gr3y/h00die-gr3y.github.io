@@ -1,4 +1,4 @@
-# Disclosure and advisory model — v3.1
+# Disclosure and advisory model — v3.1.1
 
 The h00die-gr3y website is the canonical technical research archive.
 
@@ -28,4 +28,28 @@ These remain part of the permanent disclosure history. They are not duplicated a
 4. Publish the detailed technical article under `/research/` at coordinated public disclosure.
 5. Record CVE, vendor/GHSA disclosure records and exploit implementations as structured metadata.
 
-The schema includes an optional `researchId` in the form `HGR-YYYY-NNN` for future work that needs a stable identifier before a CVE exists. Historical entries are not retroactively assigned HGR numbers in v3.1.
+The schema includes an optional `researchId` in the form `HGR-YYYY-NNN` for future work that needs a stable identifier before a CVE exists. Historical entries are not retroactively assigned HGR numbers in v3.1.1.
+
+## Research publication provenance
+
+Research content now has an explicit source provenance model:
+
+- `attacker-kb-archive` — preserved research imported from the historical AttackerKB archive. This is the schema default so the existing 63 entries require no frontmatter rewrite.
+- `site-native` — research first published directly by h00die-gr3y on this site.
+
+A future site-native Research entry should use:
+
+```yaml
+source:
+  provenance: site-native
+  platform: h00die-gr3y
+  url: https://h00die-gr3y.github.io/research/<slug>/
+```
+
+The Research layout uses that field to distinguish **Originally published on ...** archive provenance from **Published by h00die-gr3y** site-native provenance. Site-native entries are also excluded from the **Edited archive** label.
+
+## Embargo boundary
+
+An `embargoed` status is schema-valid because private drafts use the same content model, but embargoed Markdown must never be committed to this public repository. Release QA now fails if a public `src/content/research/*.md` file contains `disclosure.status: embargoed`.
+
+Keep private drafts outside the repository (or with a non-`.md` extension in a private workspace) until coordinated public disclosure. At publication, change the source provenance to `site-native`, set the canonical site URL and resolve the final disclosure metadata before moving the article into `src/content/research/`.
