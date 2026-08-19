@@ -1,32 +1,38 @@
-# Apply h00die-gr3y v3.1.1
+# Apply h00die-gr3y v3.2.1
 
-This patch prepares the current v3.1 site for research that is first published directly on h00die-gr3y instead of being migrated from AttackerKB.
-
-It does **not** publish CVE-2026-53804 or any other embargoed research.
-
-Apply it over the current `redesign-astro` worktree:
+v3.2.1 audits and corrects the **Exploit Development** taxonomy. It is designed to apply over a worktree where **v3.2 is already applied**.
 
 ```bash
 cd /Users/hgiessen/h00die-gr3y-astro
 
 git pull
-unzip -o ~/Downloads/h00die-gr3y-astro-source-v3.1.1.zip -d .
-node scripts/apply-v3.1.1.mjs
+unzip -o ~/Downloads/h00die-gr3y-astro-source-v3.2.1.zip -d .
+node scripts/apply-v3.2.1.mjs
 
+rm -rf .astro
 node scripts/qa-site.mjs
 npm run build
 npm run dev
 ```
 
-Review these areas:
+Review these areas locally:
 
-- `/research/`
-- `/exploits/`
-- several existing Research detail pages
-- homepage archive statistics
-- `DISCLOSURE-ADVISORIES.md`
+- `/exploits/` — expected **51** qualifying entries on the current 64-entry corpus
+- `/research/` — Exploit Development count should be **51**
+- `/research/cve-2024-12992/` — no Exploit Development label/heading
+- `/research/cve-2025-5965/` — no Exploit Development label/heading
+- `/research/cve-2026-53804/` — remains Original Research, but is not Exploit Development
+- `/research/cve-2024-11320/` — remains categorized as **Exploit Development** by explicit editorial decision
+- `/research/cve-2022-31706/`, `/research/cve-2022-31814/`, `/research/cve-2025-32433/` — implementation references may remain, but the research is not categorized as Exploit Development
 
-The visible behavior of the existing 63 AttackerKB entries should remain the same except for wording that is now explicitly archive-specific.
+Expected release-model state:
+
+- Research entries: **64**
+- AttackerKB archive entries: **63**
+- Site-native Research entries: **1**
+- Exploit Development entries: **51**
+- Exploit Development entries with empty artifact lists: **0**
+- Structured researcher advisories: **3**
 
 Before publishing:
 
@@ -39,23 +45,6 @@ When satisfied:
 
 ```bash
 git add .
-git commit -m "Add native research provenance v3.1.1"
+git commit -m "Audit Exploit Development taxonomy v3.2.1"
 git push
 ```
-
-The existing GitHub Action will run release QA, build Astro and deploy `dist/` to production.
-
-## Future site-native frontmatter
-
-At coordinated public disclosure, a new native Research entry should include:
-
-```yaml
-source:
-  provenance: site-native
-  platform: h00die-gr3y
-  url: https://h00die-gr3y.github.io/research/<slug>/
-```
-
-Existing migrated Research entries do not need changes: the schema defaults missing provenance to `attacker-kb-archive`.
-
-Release QA now also rejects `disclosure.status: embargoed` inside public `src/content/research/*.md` files. Embargoed drafts must remain outside the public repository.

@@ -4,7 +4,7 @@
   "non_cve": 1,
   "original_research": 12,
   "technical_analysis": 51,
-  "exploit_development": 58,
+  "exploit_development": 51,
   "with_exploit_artifacts": 54,
   "exploit_artifacts": 57,
   "exploit_artifact_types": {
@@ -20,7 +20,7 @@
     "local_fallbacks": 1,
     "artifacts_with_contribution_pr": 45
   },
-  "exploit_development_without_linked_artifact": 4,
+  "exploit_development_without_linked_artifact": 0,
   "editorial_status": {
     "original_research_polished": 12,
     "technical_analysis_polished": 49,

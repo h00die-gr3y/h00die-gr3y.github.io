@@ -1,4 +1,4 @@
-# Disclosure and advisory model — v3.1.1
+# Disclosure and advisory model — v3.2
 
 The h00die-gr3y website is the canonical technical research archive.
 
@@ -53,3 +53,11 @@ The Research layout uses that field to distinguish **Originally published on ...
 An `embargoed` status is schema-valid because private drafts use the same content model, but embargoed Markdown must never be committed to this public repository. Release QA now fails if a public `src/content/research/*.md` file contains `disclosure.status: embargoed`.
 
 Keep private drafts outside the repository (or with a non-`.md` extension in a private workspace) until coordinated public disclosure. At publication, change the source provenance to `site-native`, set the canonical site URL and resolve the final disclosure metadata before moving the article into `src/content/research/`.
+
+## First-class Research without an advisory record
+
+CVE-2026-53804 is published as a first-class, site-native **Original Research** article at `/research/cve-2026-53804/`. The Research page is the canonical technical publication.
+
+Its structured `disclosure` object uses `status: published` and finder credit while leaving `advisories: []`. This intentionally keeps the publication out of the Published Advisories portfolio while preserving disclosure metadata on the Research detail page.
+
+The Research, CVE and Exploit Development indexes derive their totals from the content collection and therefore include the new entry automatically. The preserved AttackerKB baseline remains 63 entries.

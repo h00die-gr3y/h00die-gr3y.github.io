@@ -36,7 +36,7 @@ const kbFiles = walk(path.join(src, 'content', 'knowledge-base')).filter((file) 
 const articleFiles = walk(path.join(src, 'content', 'articles')).filter((file) => file.endsWith('.md'));
 
 // Release counts: these catch accidental content loss before deployment.
-if (researchFiles.length < 63) failures.push(`Expected at least 63 research entries, found ${researchFiles.length}.`);
+if (researchFiles.length < 64) failures.push(`Expected at least 64 research entries, found ${researchFiles.length}.`);
 if (kbFiles.length !== 7) failures.push(`Expected 7 Knowledge Base entries, found ${kbFiles.length}.`);
 if (articleFiles.length !== 1) failures.push(`Expected 1 article, found ${articleFiles.length}.`);
 
@@ -85,6 +85,75 @@ if (!researchLayout.includes("sourceProvenance = data.source.provenance ?? 'atta
 const researchArchive = read(path.join(src, 'components', 'ResearchArchive.astro'));
 if (!researchArchive.includes("!siteNativeResearch && d.editorialStatus !== 'archived'")) {
   failures.push('Research archive can incorrectly label site-native research as an edited archive item.');
+}
+
+// v3.2 canonical site-native publication.
+const canonicalNativeCve = 'cve-2026-53804.md';
+const canonicalNativeCveFile = researchFiles.find((candidate) => path.basename(candidate) === canonicalNativeCve);
+if (!canonicalNativeCveFile) {
+  failures.push(`Missing canonical Research publication: ${canonicalNativeCve}.`);
+} else {
+  const canonicalText = read(canonicalNativeCveFile);
+  const canonicalFm = frontmatter(canonicalText);
+  if (!/^cve:\s*CVE-2026-53804\s*$/m.test(canonicalFm)) failures.push(`${rel(canonicalNativeCveFile)} is missing CVE-2026-53804 metadata.`);
+  if (!/^researchType:\s*original-research\s*$/m.test(canonicalFm)) failures.push(`${rel(canonicalNativeCveFile)} must be Original Research.`);
+  if (!/^ {2}provenance:\s*site-native\s*$/m.test(canonicalFm)) failures.push(`${rel(canonicalNativeCveFile)} must use site-native provenance.`);
+  if (!/^ {2}url:\s*https:\/\/h00die-gr3y\.github\.io\/research\/cve-2026-53804\/\s*$/m.test(canonicalFm)) failures.push(`${rel(canonicalNativeCveFile)} has the wrong canonical source URL.`);
+  if (!/^ {2}status:\s*published\s*$/m.test(canonicalFm)) failures.push(`${rel(canonicalNativeCveFile)} must be published.`);
+  if (!/^ {2}credit:\s*h00die-gr3y — Finder\s*$/m.test(canonicalFm)) failures.push(`${rel(canonicalNativeCveFile)} is missing finder credit.`);
+  if (!/^ {2}advisories:\s*\[\]\s*$/m.test(canonicalFm)) failures.push(`${rel(canonicalNativeCveFile)} must not create an advisory record.`);
+  if (/security\/advisories/i.test(canonicalText)) failures.push(`${rel(canonicalNativeCveFile)} contains a researcher-advisory reference.`);
+  if (!canonicalText.includes('Kernel/System/Crypt/PGP.pm')) failures.push(`${rel(canonicalNativeCveFile)} is missing the PGP.pm root-cause path.`);
+  if (!canonicalText.includes('PGP::Bin') || !canonicalText.includes('PGP::Options')) failures.push(`${rel(canonicalNativeCveFile)} is missing the affected PGP settings.`);
+}
+
+const disclosurePanelV32 = read(path.join(src, 'components', 'DisclosurePanel.astro'));
+if (disclosurePanelV32.includes('disclosure && disclosure.advisories?.length > 0')) {
+  failures.push('DisclosurePanel still hides published disclosure metadata when there are no advisory records.');
+}
+
+// v3.2.1 Exploit Development taxonomy.
+// A qualifying entry must expose an implementation that belongs to the research
+// contribution. PR/local implementation metadata is direct evidence; the small
+// allowlist below covers older archived work whose assessment explicitly records
+// researcher-created exploit code but whose PR was not preserved, plus the
+// explicit editorial retention of CVE-2024-11320.
+const verifiedNoPrExploitDevelopment = new Set([
+  'cve-2021-39144.md',
+  'cve-2021-44529.md',
+  'cve-2022-33891.md',
+  'cve-2022-37061.md',
+  'cve-2022-44877.md',
+  'cve-2023-50919.md',
+  'cve-2024-11320.md',
+]);
+
+let exploitDevelopmentCount = 0;
+for (const file of researchFiles) {
+  const text = read(file);
+  const fm = frontmatter(text);
+  const name = path.basename(file);
+  const exploitDevelopment = /^exploitDevelopment:\s*true\s*$/m.test(fm);
+  const emptyArtifacts = /^exploitArtifacts:\s*\[\]\s*$/m.test(fm);
+  const contributionPr = /^\s+pullRequestUrl:\s*https:\/\/github\.com\/rapid7\/metasploit-framework\/pull\/\d+\s*$/m.test(fm);
+  const localResearchImplementation = /^\s+localUrl:\s*https:\/\/github\.com\/h00die-gr3y\//m.test(fm);
+  const verifiedHistoricalImplementation = verifiedNoPrExploitDevelopment.has(name);
+
+  if (exploitDevelopment) {
+    exploitDevelopmentCount += 1;
+    if (emptyArtifacts) {
+      failures.push(`${rel(file)} is classified as Exploit Development but has no exploit artifact. Payloads/manual PoCs alone do not qualify.`);
+    }
+    if (!contributionPr && !localResearchImplementation && !verifiedHistoricalImplementation) {
+      failures.push(`${rel(file)} is classified as Exploit Development without researcher-contribution provenance.`);
+    }
+  } else if (/^## Exploit development\s*$/mi.test(text)) {
+    failures.push(`${rel(file)} has an Exploit development heading while exploitDevelopment is false.`);
+  }
+}
+
+if (exploitDevelopmentCount < 51) {
+  failures.push(`Expected the audited Exploit Development baseline to remain at least 51 entries, found ${exploitDevelopmentCount}.`);
 }
 
 // Every rendered main region must expose the skip-link target.
@@ -186,6 +255,8 @@ notes.push(`Articles: ${articleFiles.length}`);
 notes.push(`AttackerKB archive entries: ${attackerKbArchiveCount}`);
 notes.push(`Site-native research entries: ${siteNativeResearchCount}`);
 notes.push(`Structured researcher advisories: ${researcherAdvisoryCount}`);
+notes.push(`Canonical native CVE publication: CVE-2026-53804`);
+notes.push(`Exploit Development entries: ${exploitDevelopmentCount}`);
 notes.push(`Protected historical researcher advisories: ${historicalResearcherAdvisoryCount}`);
 notes.push(`Astro files checked: ${astroFiles.length}`);
 notes.push(`Markdown files checked: ${markdownFiles.length}`);

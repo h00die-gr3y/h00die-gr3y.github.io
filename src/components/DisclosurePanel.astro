@@ -16,7 +16,7 @@ const advisoryTypeLabels = {
 };
 ---
 
-{disclosure && disclosure.advisories?.length > 0 && (
+{disclosure && (
   <div class="meta-panel">
     <h2>Disclosure</h2>
     <dl>
@@ -27,21 +27,23 @@ const advisoryTypeLabels = {
       {disclosure.credit && <div><dt>Credit</dt><dd>{disclosure.credit}</dd></div>}
     </dl>
 
-    <ul class="meta-links implementation-links">
-      {disclosure.advisories.map((advisory) => (
-        <li>
-          <div class="implementation-name">
-            {advisory.id ?? advisory.label}
-            <span class="tool-kind">[{advisoryTypeLabels[advisory.type] ?? advisory.type}]</span>
-          </div>
-          <div class="implementation-actions">
-            <a href={advisory.url} target="_blank" rel="noopener noreferrer">
-              {advisory.label} ↗<span class="sr-only"> (opens in a new tab)</span>
-            </a>
-          </div>
-          {advisory.published && <div class="implementation-name">Published {advisory.published}</div>}
-        </li>
-      ))}
-    </ul>
+    {(disclosure.advisories?.length ?? 0) > 0 && (
+      <ul class="meta-links implementation-links">
+        {disclosure.advisories.map((advisory) => (
+          <li>
+            <div class="implementation-name">
+              {advisory.id ?? advisory.label}
+              <span class="tool-kind">[{advisoryTypeLabels[advisory.type] ?? advisory.type}]</span>
+            </div>
+            <div class="implementation-actions">
+              <a href={advisory.url} target="_blank" rel="noopener noreferrer">
+                {advisory.label} ↗<span class="sr-only"> (opens in a new tab)</span>
+              </a>
+            </div>
+            {advisory.published && <div class="implementation-name">Published {advisory.published}</div>}
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
 )}
