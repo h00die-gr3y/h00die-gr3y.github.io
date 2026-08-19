@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="A practical guide to working out what attacker-controlled PHP deserialization actually gives you, which classes are reachable, and how that can grow into real impact."><meta name="author" content="h00die-gr3y"><meta name="robots" content="index,follow"><meta name="theme-color" content="#090c0b"><meta name="color-scheme" content="dark"><link rel="canonical" href="https://h00die-gr3y.github.io/knowledge-base/php-deserialization/"><link rel="icon" type="image/png" href="/images/site/favicon.png"><link rel="apple-touch-icon" href="/images/site/apple-touch-icon.png"><link rel="alternate" type="application/rss+xml" title="h00die-gr3y Research Feed" href="/rss.xml"><link rel="sitemap" href="/sitemap.xml"><link rel="me" href="https://github.com/h00die-gr3y"><meta property="og:site_name" content="h00die-gr3y"><meta property="og:title" content="PHP Deserialization and Object Injection — Knowledge Base — h00die-gr3y"><meta property="og:description" content="A practical guide to working out what attacker-controlled PHP deserialization actually gives you, which classes are reachable, and how that can grow into real impact."><meta property="og:url" content="https://h00die-gr3y.github.io/knowledge-base/php-deserialization/"><meta property="og:type" content="article"><meta property="og:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="og:image:alt" content="h00die-gr3y security research"><meta property="og:image:width" content="1254"><meta property="og:image:height" content="1254"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="PHP Deserialization and Object Injection — Knowledge Base — h00die-gr3y"><meta name="twitter:description" content="A practical guide to working out what attacker-controlled PHP deserialization actually gives you, which classes are reachable, and how that can grow into real impact."><meta name="twitter:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="article:tag" content="PHP"><meta property="article:tag" content="Deserialization"><meta property="article:tag" content="Object Injection"><meta property="article:tag" content="Gadget Chains"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"PHP Deserialization and Object Injection","description":"A practical guide to working out what attacker-controlled PHP deserialization actually gives you, which classes are reachable, and how that can grow into real impact.","url":"https://h00die-gr3y.github.io/knowledge-base/php-deserialization/","mainEntityOfPage":"https://h00die-gr3y.github.io/knowledge-base/php-deserialization/","image":"https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png","author":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"publisher":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"keywords":"PHP, Deserialization, Object Injection, Gadget Chains"}</script><title>PHP Deserialization and Object Injection — Knowledge Base — h00die-gr3y</title><link rel="stylesheet" href="/_astro/Footer.B4NsPX6g.css"></head><body><a class="skip-link" href="#main-content">Skip to content</a><header class="site-header"><div class="container header-inner"><a class="brand" href="/" aria-label="h00die-gr3y home"><span class="brand-mark">H00DIE</span><span class="brand-dash">-</span><span class="brand-muted">GR3Y</span></a><nav class="main-nav" aria-label="Main navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a></nav><a class="github-link" href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a><details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></nav></details></div></header><main id="main-content" tabindex="-1"><section class="kb-detail-hero"><div class="container"><div class="kb-detail-labels"><span class="section-index">KNOWLEDGE BASE</span><span class="kb-topic-label">WEB APPLICATIONS</span></div><h1>PHP Deserialization and Object Injection</h1><p>A practical guide to working out what attacker-controlled PHP deserialization actually gives you, which classes are reachable, and how that can grow into real impact.</p></div></section><section class="kb-detail section-bordered"><div class="container kb-detail-grid"><article class="research-body kb-body"><h2 id="unserialize-is-interesting-but-it-is-not-automatically-rce"><code>unserialize()</code> is interesting, but it is not automatically RCE</h2>
+<p>When I see attacker-controlled data reaching <code>unserialize()</code>, that immediately gets my attention.</p>
+<p>The second reaction should be: <strong>what can I actually do with it?</strong></p>
+<p>I break the problem into a few steps:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>serialized data I can control</span></span>
+<span class="line"><span>            ↓</span></span>
+<span class="line"><span>      PHP deserialization</span></span>
+<span class="line"><span>            ↓</span></span>
+<span class="line"><span> classes and magic methods I can reach</span></span>
+<span class="line"><span>            ↓</span></span>
+<span class="line"><span> useful side effect</span></span>
+<span class="line"><span>            ↓</span></span>
+<span class="line"><span>       real security impact</span></span></code></pre>
+<p>The interesting part is not the word <code>unserialize()</code> itself. It is the code that becomes reachable after PHP creates the object.</p>
+<h2 id="first-find-the-trust-boundary">First find the trust boundary</h2>
+<p>I want to know exactly where the serialized data comes from.</p>
+<p>Common places are:</p>
+<ul>
+<li>backup or restore archives;</li>
+<li>session or cache data;</li>
+<li>database records;</li>
+<li>HTTP parameters or cookies;</li>
+<li>import files;</li>
+<li>framework state objects.</li>
+</ul>
+<p>Then I check whether the application really lets me control that data. Encryption, signatures, integrity checks or access-control checks can completely change the story.</p>
+<h2 id="look-at-what-is-loaded">Look at what is loaded</h2>
+<p>PHP object injection becomes much more interesting when the application has a large class space.</p>
+<p>Composer packages, framework classes and vendor libraries may already contain everything needed for a useful gadget chain.</p>
+<p>My usual checklist is:</p>
+<ul>
+<li>application and framework version;</li>
+<li>Composer dependencies and versions;</li>
+<li>autoload behavior;</li>
+<li><code>__wakeup()</code>, <code>__destruct()</code>, <code>__toString()</code>, <code>__invoke()</code> and friends;</li>
+<li>classes that write files, delete files, make network requests or execute processes.</li>
+</ul>
+<p>A class does not need to look security-sensitive by itself. I care about what happens when attacker-controlled properties reach its methods.</p>
+<h2 id="follow-the-side-effects">Follow the side effects</h2>
+<p>I search for useful behavior such as:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>file write</span></span>
+<span class="line"><span>file delete</span></span>
+<span class="line"><span>path manipulation</span></span>
+<span class="line"><span>process execution</span></span>
+<span class="line"><span>network request</span></span>
+<span class="line"><span>dynamic callback</span></span>
+<span class="line"><span>template evaluation</span></span>
+<span class="line"><span>expression evaluation</span></span></code></pre>
+<p>Then I work backwards and ask whether object properties give me enough control to reach that behavior.</p>
+<p>That is basically what a gadget chain is: a route from the object I can create to the side effect I actually want.</p>
+<h2 id="preconditions-can-make-or-break-the-exploit">Preconditions can make or break the exploit</h2>
+<p>A clean-looking chain on paper can still fail because the runtime is missing one small ingredient.</p>
+<p>Things I check include:</p>
+<ul>
+<li>optional PHP extensions;</li>
+<li>writable directories;</li>
+<li>dependency versions;</li>
+<li>whether the class is autoloaded;</li>
+<li>whether authentication is required;</li>
+<li>whether a second request is needed;</li>
+<li>whether a generated file must be triggered separately.</li>
+</ul>
+<p>I write these down while testing. It saves a lot of confusion later when the exploit works on one target and not on another.</p>
+<h2 id="keep-the-explanation-simple">Keep the explanation simple</h2>
+<p>I prefer the vulnerability story to make sense before showing the final payload.</p>
+<p>A format that works well is:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>Root cause</span></span>
+<span class="line"><span>  attacker-controlled data is deserialized</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>What that gives me</span></span>
+<span class="line"><span>  object and property control</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Useful class behavior</span></span>
+<span class="line"><span>  attacker-controlled side effect</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Impact</span></span>
+<span class="line"><span>  file write / command execution / other compromise</span></span></code></pre>
+<p>That structure is much easier to reuse when the gadget chain changes between versions.</p>
+<h2 id="when-i-build-the-exploit">When I build the exploit</h2>
+<p>Once I have the chain working, I still test the boring bits:</p>
+<ul>
+<li>Can I detect the vulnerable version?</li>
+<li>Can I detect a missing dependency?</li>
+<li>Can I clean up generated files?</li>
+<li>Can I fail with a useful error instead of a dead session?</li>
+<li>Can I make the chain work without hard-coded paths from my lab?</li>
+</ul>
+<p>Those details are what turn a working proof of concept into something I trust enough to use again.</p>
+</article><aside class="research-sidebar kb-sidebar"><div class="meta-panel"><h2>Reference metadata</h2><dl><div><dt>Category</dt><dd>Web Applications</dd></div><div><dt>Topics</dt><dd>PHP, Deserialization, Object Injection, Gadget Chains</dd></div></dl></div><div class="meta-panel"><h2>Related research</h2><ul class="meta-links"><li><a href="/research/cve-2026-26978/">CVE-2026-26978 — FreePBX Backup &amp; Restore PHP Object Injection to RCE →</a></li><li><a href="/research/cve-2023-41892/">CVE-2023-41892 — Craft CMS Remote Code Execution →</a></li></ul></div><div class="meta-panel"><h2>Related articles</h2><ul class="meta-links"><li><a href="/articles/from-vulnerability-analysis-to-exploit-development/">From Vulnerability Analysis to Exploit Development →</a></li></ul></div><div class="meta-panel"><h2>More in this area</h2><ul class="meta-links"><li><a href="/knowledge-base/command-injection/">Command Injection Analysis →</a></li></ul></div><div class="meta-panel archive-note"><h2>Knowledge Base scope</h2><p>Reusable technical notes and methodology. Vulnerability-specific evidence remains in Research.</p></div></aside></div></section></main><footer class="site-footer"><div class="container footer-inner"><div><strong>h00die-gr3y</strong><p>Independent security research and exploit development.</p></div><div class="footer-meta"><a href="/rss.xml">RSS</a><a href="/advisories/">Advisories</a><a href="/disclaimer/">Disclaimer</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></div></div></footer></body></html>

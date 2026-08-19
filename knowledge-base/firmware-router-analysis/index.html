@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="My practical workflow for moving from a firmware image to the web interface, native helpers, emulation and targeted validation on embedded Linux routers."><meta name="author" content="h00die-gr3y"><meta name="robots" content="index,follow"><meta name="theme-color" content="#090c0b"><meta name="color-scheme" content="dark"><link rel="canonical" href="https://h00die-gr3y.github.io/knowledge-base/firmware-router-analysis/"><link rel="icon" type="image/png" href="/images/site/favicon.png"><link rel="apple-touch-icon" href="/images/site/apple-touch-icon.png"><link rel="alternate" type="application/rss+xml" title="h00die-gr3y Research Feed" href="/rss.xml"><link rel="sitemap" href="/sitemap.xml"><link rel="me" href="https://github.com/h00die-gr3y"><meta property="og:site_name" content="h00die-gr3y"><meta property="og:title" content="Router Firmware Analysis Workflow — Knowledge Base — h00die-gr3y"><meta property="og:description" content="My practical workflow for moving from a firmware image to the web interface, native helpers, emulation and targeted validation on embedded Linux routers."><meta property="og:url" content="https://h00die-gr3y.github.io/knowledge-base/firmware-router-analysis/"><meta property="og:type" content="article"><meta property="og:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="og:image:alt" content="h00die-gr3y security research"><meta property="og:image:width" content="1254"><meta property="og:image:height" content="1254"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Router Firmware Analysis Workflow — Knowledge Base — h00die-gr3y"><meta name="twitter:description" content="My practical workflow for moving from a firmware image to the web interface, native helpers, emulation and targeted validation on embedded Linux routers."><meta name="twitter:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="article:tag" content="Firmware"><meta property="article:tag" content="Embedded Linux"><meta property="article:tag" content="Routers"><meta property="article:tag" content="Reverse Engineering"><meta property="article:tag" content="Emulation"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Router Firmware Analysis Workflow","description":"My practical workflow for moving from a firmware image to the web interface, native helpers, emulation and targeted validation on embedded Linux routers.","url":"https://h00die-gr3y.github.io/knowledge-base/firmware-router-analysis/","mainEntityOfPage":"https://h00die-gr3y.github.io/knowledge-base/firmware-router-analysis/","image":"https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png","author":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"publisher":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"keywords":"Firmware, Embedded Linux, Routers, Reverse Engineering, Emulation"}</script><title>Router Firmware Analysis Workflow — Knowledge Base — h00die-gr3y</title><link rel="stylesheet" href="/_astro/Footer.B4NsPX6g.css"></head><body><a class="skip-link" href="#main-content">Skip to content</a><header class="site-header"><div class="container header-inner"><a class="brand" href="/" aria-label="h00die-gr3y home"><span class="brand-mark">H00DIE</span><span class="brand-dash">-</span><span class="brand-muted">GR3Y</span></a><nav class="main-nav" aria-label="Main navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a></nav><a class="github-link" href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a><details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></nav></details></div></header><main id="main-content" tabindex="-1"><section class="kb-detail-hero"><div class="container"><div class="kb-detail-labels"><span class="section-index">KNOWLEDGE BASE</span><span class="kb-topic-label">IOT &amp; EMBEDDED</span></div><h1>Router Firmware Analysis Workflow</h1><p>My practical workflow for moving from a firmware image to the web interface, native helpers, emulation and targeted validation on embedded Linux routers.</p></div></section><section class="kb-detail section-bordered"><div class="container kb-detail-grid"><article class="research-body kb-body"><h2 id="do-not-start-in-ghidra">Do not start in Ghidra</h2>
+<p>It is tempting to throw the biggest binary into a disassembler immediately. I usually get more value by first treating the firmware as a complete little Linux system.</p>
+<p>My first inventory looks something like this:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>CPU architecture</span></span>
+<span class="line"><span>endianness</span></span>
+<span class="line"><span>kernel and libc</span></span>
+<span class="line"><span>filesystem layout</span></span>
+<span class="line"><span>init system</span></span>
+<span class="line"><span>web server</span></span>
+<span class="line"><span>management daemons</span></span>
+<span class="line"><span>CGI / Lua / PHP components</span></span>
+<span class="line"><span>configuration storage</span></span>
+<span class="line"><span>network services</span></span>
+<span class="line"><span>privileged helper binaries</span></span></code></pre>
+<p>That already tells me where I want to look next.</p>
+<h2 id="keep-the-firmware-image-clean">Keep the firmware image clean</h2>
+<p>I keep the downloaded firmware image untouched, record where it came from and calculate a checksum.</p>
+<p>Everything else happens in a separate working directory.</p>
+<p>On the first extraction pass I am looking for:</p>
+<ul>
+<li>filesystem type;</li>
+<li>nested vendor containers;</li>
+<li>plaintext configuration defaults;</li>
+<li>setuid or privileged binaries;</li>
+<li>startup scripts;</li>
+<li>web roots;</li>
+<li>CGI handlers;</li>
+<li>scripts that call shell commands;</li>
+<li>files that look like NVRAM or configuration databases.</li>
+</ul>
+<p>I also keep the extraction commands in my notes. Being able to reproduce the exact filesystem later is worth the small effort.</p>
+<h2 id="follow-the-web-interface-into-the-system">Follow the web interface into the system</h2>
+<p>Router web interfaces are often a chain of different technologies rather than one application.</p>
+<p>A request may travel through:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>HTTP server</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>CGI / Lua / proprietary dispatcher</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>shell script or native helper</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>configuration subsystem</span></span>
+<span class="line"><span>   ↓</span></span>
+<span class="line"><span>privileged daemon / system command</span></span></code></pre>
+<p>This is where things get interesting.</p>
+<p>A parameter may look perfectly harmless in JavaScript or Lua and then end up unquoted in a shell command two layers deeper.</p>
+<p>I follow the value all the way down.</p>
+<h2 id="search-first-reverse-second">Search first, reverse second</h2>
+<p>Simple string searches save a lot of Ghidra time.</p>
+<p>I look for:</p>
+<ul>
+<li>command strings;</li>
+<li>CGI route names;</li>
+<li>configuration keys;</li>
+<li><code>system</code>;</li>
+<li><code>popen</code>;</li>
+<li><code>exec*</code>;</li>
+<li>vendor wrappers around those functions;</li>
+<li>password-generation routines;</li>
+<li>update scripts;</li>
+<li>diagnostic functions;</li>
+<li>log collection;</li>
+<li>telnet or SSH setup.</li>
+</ul>
+<p>Those hits tell me which binaries deserve proper reverse engineering.</p>
+<h2 id="emulation-is-great-when-it-works">Emulation is great when it works</h2>
+<p>I like emulation because it makes repeated testing much quicker, but I do not force it.</p>
+<p>Depending on the device I may use:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>static analysis</span></span>
+<span class="line"><span>    +</span></span>
+<span class="line"><span>user-mode / partial emulation</span></span>
+<span class="line"><span>    +</span></span>
+<span class="line"><span>full-system emulation when it behaves</span></span>
+<span class="line"><span>    +</span></span>
+<span class="line"><span>real hardware when needed</span></span></code></pre>
+<p>FirmAE and similar tooling can get you surprisingly far, but routers love proprietary drivers, odd NVRAM behavior and hardware-specific startup logic.</p>
+<p>Whenever the emulator behaves differently from the real device, I write it down. Otherwise it is very easy to debug the emulator instead of the router.</p>
+<h2 id="always-check-the-execution-user">Always check the execution user</h2>
+<p>One of the first commands I run after reaching command execution is usually:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">id</span></span></code></pre>
+<p>A web vulnerability becomes a very different finding when the command crosses from the management interface into a daemon running as <code>root</code>.</p>
+<p>I check:</p>
+<ul>
+<li>which process executes the action;</li>
+<li>its user and group;</li>
+<li>whether another daemon is involved;</li>
+<li>whether privilege separation exists;</li>
+<li>whether execution is immediate or delayed.</li>
+</ul>
+<h2 id="router-chains-are-often-more-fun-than-single-bugs">Router chains are often more fun than single bugs</h2>
+<p>Embedded devices regularly give you several smaller weaknesses that fit together nicely.</p>
+<p>For example:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>unauthenticated information disclosure</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>recover credential or secret</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>login / bypass authentication</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>command injection</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>root</span></span></code></pre>
+<p>I write the chain down exactly like that while testing. It makes it much easier to see what still needs proof and later turns directly into the exploit flow.</p>
+<h2 id="a-few-things-i-keep-in-the-notebook">A few things I keep in the notebook</h2>
+<p>Before I call the analysis done I normally have:</p>
+<ul>
+<li>firmware filename and hash;</li>
+<li>target architecture;</li>
+<li>important startup processes;</li>
+<li>web route → handler mapping;</li>
+<li>dangerous helper functions;</li>
+<li>execution user;</li>
+<li>exact vulnerable versions I tested;</li>
+<li>differences between emulation and hardware;</li>
+<li>any chained bugs needed to reach the final impact.</li>
+</ul>
+<p>That is enough structure to pick the work up again months later without having to rediscover the whole router.</p>
+</article><aside class="research-sidebar kb-sidebar"><div class="meta-panel"><h2>Reference metadata</h2><dl><div><dt>Category</dt><dd>IoT &amp; Embedded</dd></div><div><dt>Topics</dt><dd>Firmware, Embedded Linux, Routers, Reverse Engineering, Emulation</dd></div></dl></div><div class="meta-panel"><h2>Related research</h2><ul class="meta-links"><li><a href="/research/cve-2023-50445/">CVE-2023-50445 — GL.iNet Shell Injection →</a></li><li><a href="/research/cve-2023-50919/">CVE-2023-50919 — GL.iNet Authentication Bypass →</a></li><li><a href="/research/cve-2024-48456/">CVE-2024-48456 — Netis Command Injection →</a></li><li><a href="/research/zyxel-router-chained-rce/">Zyxel Router Chained RCE →</a></li></ul></div><div class="meta-panel"><h2>More in this area</h2><ul class="meta-links"><li><a href="/knowledge-base/uart-shell-access/">UART Shell Access and Serial Debugging →</a></li></ul></div><div class="meta-panel archive-note"><h2>Knowledge Base scope</h2><p>Reusable technical notes and methodology. Vulnerability-specific evidence remains in Research.</p></div></aside></div></section></main><footer class="site-footer"><div class="container footer-inner"><div><strong>h00die-gr3y</strong><p>Independent security research and exploit development.</p></div><div class="footer-meta"><a href="/rss.xml">RSS</a><a href="/advisories/">Advisories</a><a href="/disclaimer/">Disclaimer</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></div></div></footer></body></html>

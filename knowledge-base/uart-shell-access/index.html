@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="A hands-on UART walkthrough: find the pins, wire a serial bridge, configure the terminal and get a console on a Transpeed 6K TV box."><meta name="author" content="h00die-gr3y"><meta name="robots" content="index,follow"><meta name="theme-color" content="#090c0b"><meta name="color-scheme" content="dark"><link rel="canonical" href="https://h00die-gr3y.github.io/knowledge-base/uart-shell-access/"><link rel="icon" type="image/png" href="/images/site/favicon.png"><link rel="apple-touch-icon" href="/images/site/apple-touch-icon.png"><link rel="alternate" type="application/rss+xml" title="h00die-gr3y Research Feed" href="/rss.xml"><link rel="sitemap" href="/sitemap.xml"><link rel="me" href="https://github.com/h00die-gr3y"><meta property="og:site_name" content="h00die-gr3y"><meta property="og:title" content="UART Shell Access and Serial Debugging — Knowledge Base — h00die-gr3y"><meta property="og:description" content="A hands-on UART walkthrough: find the pins, wire a serial bridge, configure the terminal and get a console on a Transpeed 6K TV box."><meta property="og:url" content="https://h00die-gr3y.github.io/knowledge-base/uart-shell-access/"><meta property="og:type" content="article"><meta property="og:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="og:image:alt" content="h00die-gr3y security research"><meta property="og:image:width" content="1254"><meta property="og:image:height" content="1254"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="UART Shell Access and Serial Debugging — Knowledge Base — h00die-gr3y"><meta name="twitter:description" content="A hands-on UART walkthrough: find the pins, wire a serial bridge, configure the terminal and get a console on a Transpeed 6K TV box."><meta name="twitter:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="article:tag" content="UART"><meta property="article:tag" content="Hardware Research"><meta property="article:tag" content="Serial Console"><meta property="article:tag" content="IoT"><meta property="article:tag" content="Flipper Zero"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"UART Shell Access and Serial Debugging","description":"A hands-on UART walkthrough: find the pins, wire a serial bridge, configure the terminal and get a console on a Transpeed 6K TV box.","url":"https://h00die-gr3y.github.io/knowledge-base/uart-shell-access/","mainEntityOfPage":"https://h00die-gr3y.github.io/knowledge-base/uart-shell-access/","image":"https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png","author":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"publisher":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"keywords":"UART, Hardware Research, Serial Console, IoT, Flipper Zero"}</script><title>UART Shell Access and Serial Debugging — Knowledge Base — h00die-gr3y</title><link rel="stylesheet" href="/_astro/Footer.B4NsPX6g.css"></head><body><a class="skip-link" href="#main-content">Skip to content</a><header class="site-header"><div class="container header-inner"><a class="brand" href="/" aria-label="h00die-gr3y home"><span class="brand-mark">H00DIE</span><span class="brand-dash">-</span><span class="brand-muted">GR3Y</span></a><nav class="main-nav" aria-label="Main navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a></nav><a class="github-link" href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a><details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></nav></details></div></header><main id="main-content" tabindex="-1"><section class="kb-detail-hero"><div class="container"><div class="kb-detail-labels"><span class="section-index">KNOWLEDGE BASE</span><span class="kb-topic-label">IOT &amp; EMBEDDED</span></div><h1>UART Shell Access and Serial Debugging</h1><p>A hands-on UART walkthrough: find the pins, wire a serial bridge, configure the terminal and get a console on a Transpeed 6K TV box.</p></div></section><section class="kb-detail section-bordered"><div class="container kb-detail-grid"><article class="research-body kb-body"><h2 id="when-you-have-the-hardware-use-it">When you have the hardware, use it</h2>
+<p>Firmware emulation is great, but sometimes you have the device on the desk and just want a shell.</p>
+<p>UART is one of my favorite places to start.</p>
+<p>UART stands for Universal Asynchronous Receiver/Transmitter. On embedded hardware it is commonly used as a serial debug interface, and many boards expose some combination of:</p>
+<ul>
+<li><code>TX</code> — transmit;</li>
+<li><code>RX</code> — receive;</li>
+<li><code>GND</code> — ground;</li>
+<li><code>VCC</code> — supply/reference voltage.</li>
+</ul>
+<p>For a console I normally need <code>TX</code>, <code>RX</code> and <code>GND</code>. I always measure the voltage before connecting anything.</p>
+<h2 id="finding-the-uart-pins">Finding the UART pins</h2>
+<p>Sometimes you get lucky and the PCB actually says <code>TX</code> and <code>RX</code>. If not, a multimeter or logic analyzer is your friend.</p>
+<h3 id="gnd">GND</h3>
+<p>With the target powered off, I use continuity mode and find a known ground point on the PCB.</p>
+<p>There may be several ground points, so this tells me where ground is — not yet where UART is.</p>
+<h3 id="vcc">VCC</h3>
+<p>With the device powered on, measure candidate pins relative to ground.</p>
+<p>A stable 3.3 V or 5 V reading is a good clue for <code>VCC</code>. Measure it; do not assume it.</p>
+<h3 id="tx">TX</h3>
+<p><code>TX</code> is usually the fun one. During boot the device often sends a lot of debug data, so the voltage on the transmit pin changes while the device starts.</p>
+<p>A logic analyzer makes this very obvious, but a multimeter can still give you a clue.</p>
+<h3 id="rx">RX</h3>
+<p>Once I have <code>GND</code>, <code>VCC</code> and <code>TX</code>, the remaining nearby pin is often <code>RX</code>. I still verify the board layout before sending data.</p>
+<h2 id="the-victim-a-transpeed-6k-ultra-hd-tv-box">The victim: a Transpeed 6K Ultra HD TV box</h2>
+<p>For this lab I used a Transpeed 6K Ultra HD TV box running Android 10 on an ARM Cortex-A53 platform.</p>
+<p><img src="/images/knowledge-base/uart-shell-access/transpeed-6k.png" alt="Transpeed 6K Ultra HD TV box"></p>
+<p>After removing the feet, opening the enclosure and taking out the PCB, the UART interface was easy to spot. <code>RX</code> and <code>TX</code> were actually marked on the board, so no detective work was needed this time.</p>
+<p><img src="/images/knowledge-base/uart-shell-access/pcb-transpeed-6k.png" alt="UART pads on the Transpeed 6K PCB"></p>
+<h2 id="wiring-it-up-with-a-flipper-zero">Wiring it up with a Flipper Zero</h2>
+<p>I used a Flipper Zero as the USB-UART bridge between the TV box and my MacBook.</p>
+<p>The wiring is simple:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>TARGET TX  ─────────&gt;  FLIPPER RX</span></span>
+<span class="line"><span>TARGET RX  &lt;─────────  FLIPPER TX</span></span>
+<span class="line"><span>TARGET GND ──────────  FLIPPER GND</span></span></code></pre>
+<p><img src="/images/knowledge-base/uart-shell-access/uart-diagram.png" alt="UART connection diagram"></p>
+<p>On the Flipper I selected <strong>GPIO → USB-UART Bridge</strong> and used:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>115200 baud</span></span>
+<span class="line"><span>8 data bits</span></span>
+<span class="line"><span>no parity</span></span>
+<span class="line"><span>1 stop bit</span></span>
+<span class="line"><span>no flow control</span></span></code></pre>
+<p><img src="/images/knowledge-base/uart-shell-access/uart-test-bed.jpg" alt="Flipper Zero UART test bed"></p>
+<h2 id="configure-minicom">Configure <code>minicom</code></h2>
+<p>On my Mac the Flipper serial device showed up as:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>/dev/tty.usbmodemflip_On71nere1</span></span></code></pre>
+<p>I started with:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">minicom</span><span style="color:#79B8FF"> -s</span></span></code></pre>
+<p>and configured:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>+-----------------------------------------------------------------------+</span></span>
+<span class="line"><span>| A -    Serial Device      : /dev/tty.usbmodemflip_On71nere1           |</span></span>
+<span class="line"><span>| E -    Bps/Par/Bits       : 115200 8N1                                |</span></span>
+<span class="line"><span>| F - Hardware Flow Control : No                                        |</span></span>
+<span class="line"><span>| G - Software Flow Control : No                                        |</span></span>
+<span class="line"><span>+-----------------------------------------------------------------------+</span></span></code></pre>
+<p>Save the configuration, start <code>minicom</code>, and power-cycle the TV box.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">minicom</span></span></code></pre>
+<p>If everything is wired correctly, you should immediately start seeing boot messages.</p>
+<h2 id="and-there-is-the-shell">And there is the shell</h2>
+<p>The Transpeed was noisy. Lots of kernel and Android messages kept flying over the console, but eventually I got:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>console:/ $</span></span></code></pre>
+<p>From there:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">console:/</span><span style="color:#E1E4E8"> $ </span><span style="color:#9ECBFF">whoami</span></span>
+<span class="line"><span style="color:#B392F0">shell</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">console:/</span><span style="color:#E1E4E8"> $ </span><span style="color:#9ECBFF">su</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">console:/</span><span style="color:#6A737D"> # uname -a</span></span>
+<span class="line"><span style="color:#B392F0">Linux</span><span style="color:#9ECBFF"> localhost</span><span style="color:#79B8FF"> 4.9.170</span><span style="color:#6A737D"> #76 SMP PREEMPT Mon May 30 13:44:11 CST 2022 armv8l</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">console:/</span><span style="color:#6A737D"> # whoami</span></span>
+<span class="line"><span style="color:#B392F0">root</span></span></code></pre>
+<p>At this point we have physical access to a root shell over UART.</p>
+<p>The console was still being flooded with kernel messages, so I lowered the console log level:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">dmesg</span><span style="color:#79B8FF"> -n</span><span style="color:#79B8FF"> 1</span></span></code></pre>
+<p>That makes interactive work a lot less annoying.</p>
+<p>A quick filesystem check looked like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">console:/</span><span style="color:#6A737D"> # df</span></span>
+<span class="line"><span style="color:#B392F0">Filesystem</span><span style="color:#9ECBFF">            1K-blocks</span><span style="color:#9ECBFF">    Used</span><span style="color:#9ECBFF"> Available</span><span style="color:#9ECBFF"> Use%</span><span style="color:#9ECBFF"> Mounted</span><span style="color:#9ECBFF"> on</span></span>
+<span class="line"><span style="color:#B392F0">tmpfs</span><span style="color:#79B8FF">                    749960</span><span style="color:#79B8FF">     628</span><span style="color:#79B8FF">    749332</span><span style="color:#9ECBFF">   1%</span><span style="color:#9ECBFF"> /dev</span></span>
+<span class="line"><span style="color:#B392F0">/dev/block/dm-0</span><span style="color:#79B8FF">         1882332</span><span style="color:#79B8FF"> 1876612</span><span style="color:#79B8FF">      5720</span><span style="color:#9ECBFF"> 100%</span><span style="color:#9ECBFF"> /</span></span>
+<span class="line"><span style="color:#B392F0">/dev/block/dm-1</span><span style="color:#79B8FF">          141556</span><span style="color:#79B8FF">  141120</span><span style="color:#79B8FF">       436</span><span style="color:#9ECBFF"> 100%</span><span style="color:#9ECBFF"> /vendor</span></span>
+<span class="line"><span style="color:#B392F0">/dev/block/dm-2</span><span style="color:#79B8FF">           55324</span><span style="color:#79B8FF">   55152</span><span style="color:#79B8FF">       172</span><span style="color:#9ECBFF"> 100%</span><span style="color:#9ECBFF"> /product</span></span>
+<span class="line"><span style="color:#B392F0">/dev/block/mmcblk0p17</span><span style="color:#79B8FF">  19046724</span><span style="color:#79B8FF"> 3451080</span><span style="color:#79B8FF">  15595644</span><span style="color:#9ECBFF">  19%</span><span style="color:#9ECBFF"> /data</span></span></code></pre>
+<p>At this point I can inspect startup scripts, configuration, partitions, binaries and anything else that helps with the firmware research.</p>
+<h2 id="if-the-output-is-garbage">If the output is garbage</h2>
+<p>The first things I check are:</p>
+<ul>
+<li>baud rate;</li>
+<li>8N1 settings;</li>
+<li>shared ground;</li>
+<li>whether TX and RX are crossed correctly.</li>
+</ul>
+<p>Garbled output is very often just the wrong baud rate.</p>
+<h2 id="if-i-can-read-but-not-type">If I can read but not type</h2>
+<p>A debug header may expose target <code>TX</code> while the <code>RX</code> path is disconnected or disabled.</p>
+<p>Double-check:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>bridge TX → target RX</span></span>
+<span class="line"><span>bridge RX ← target TX</span></span>
+<span class="line"><span>ground ↔ ground</span></span></code></pre>
+<p>If the wiring is correct, inspect the PCB traces. Some vendors leave a readable console but deliberately break the input path.</p>
+<h2 id="if-there-is-no-uart-at-all">If there is no UART at all</h2>
+<p>Not every production board gives you a usable serial console.</p>
+<p>The UART function may be disabled in software, the header may be unpopulated, or the vendor may have cut/disconnected traces on the PCB.</p>
+<p>That is when I move on to firmware extraction, flash access, JTAG or another route instead of spending another hour fighting <code>minicom</code>.</p>
+<h2 id="uart-and-firmware-analysis-work-nicely-together">UART and firmware analysis work nicely together</h2>
+<p>I use both directions:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>UART</span></span>
+<span class="line"><span>  → watch boot</span></span>
+<span class="line"><span>  → identify partitions</span></span>
+<span class="line"><span>  → inspect services</span></span>
+<span class="line"><span>  → pull configuration or firmware</span></span>
+<span class="line"><span>  → validate runtime behavior</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Firmware analysis</span></span>
+<span class="line"><span>  → find startup scripts</span></span>
+<span class="line"><span>  → find debug services</span></span>
+<span class="line"><span>  → identify credentials / paths</span></span>
+<span class="line"><span>  → know what to look for over UART</span></span></code></pre>
+<p>See <a href="/knowledge-base/firmware-router-analysis/">Router Firmware Analysis Workflow</a> for the software side.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://flipperzero.one/">Flipper Zero</a></li>
+<li><a href="https://alrikrr.github.io/flipperzero-uart-bridge-rpi4-to-flipper/">Flipper Zero UART bridge example</a></li>
+</ul>
+</article><aside class="research-sidebar kb-sidebar"><div class="meta-panel"><h2>Reference metadata</h2><dl><div><dt>Category</dt><dd>IoT &amp; Embedded</dd></div><div><dt>Topics</dt><dd>UART, Hardware Research, Serial Console, IoT, Flipper Zero</dd></div></dl></div><div class="meta-panel"><h2>Related research</h2><ul class="meta-links"><li><a href="/research/cve-2024-22729/">CVE-2024-22729 — Netis MW5360 Command Injection →</a></li></ul></div><div class="meta-panel"><h2>More in this area</h2><ul class="meta-links"><li><a href="/knowledge-base/firmware-router-analysis/">Router Firmware Analysis Workflow →</a></li></ul></div><div class="meta-panel archive-note"><h2>Knowledge Base scope</h2><p>Reusable technical notes and methodology. Vulnerability-specific evidence remains in Research.</p></div></aside></div></section></main><footer class="site-footer"><div class="container footer-inner"><div><strong>h00die-gr3y</strong><p>Independent security research and exploit development.</p></div><div class="footer-meta"><a href="/rss.xml">RSS</a><a href="/advisories/">Advisories</a><a href="/disclaimer/">Disclaimer</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></div></div></footer></body></html>

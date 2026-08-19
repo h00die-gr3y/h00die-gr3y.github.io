@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>h00die-gr3y — Research Feed</title>
+    <link>https://h00die-gr3y.github.io/</link>
+    <description>Independent security research, vulnerability analysis, exploit development and technical articles by h00die-gr3y.</description>
+    <language>en</language>
+    <lastBuildDate>Tue, 18 Aug 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://h00die-gr3y.github.io/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CVE-2026-53804 — OTRS PGP Configuration Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2026-53804/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2026-53804/</guid>
+      <pubDate>Tue, 18 Aug 2026 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated OS command injection in OTRS Community Edition, Znuny and OTOBO through PGP executable and option settings that are interpolated into a Perl backtick command.</description>
+    </item>
+    <item>
+      <title>From Vulnerability Analysis to Exploit Development</title>
+      <link>https://h00die-gr3y.github.io/articles/from-vulnerability-analysis-to-exploit-development/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/articles/from-vulnerability-analysis-to-exploit-development/</guid>
+      <pubDate>Mon, 17 Aug 2026 00:00:00 GMT</pubDate>
+      <category>Article</category>
+      <description>A practical workflow for moving from a reproducible vulnerability to reliable exploit code, using examples from the h00die-gr3y research archive.</description>
+    </item>
+    <item>
+      <title>CVE-2025-5965 — Centreon Backup Configuration Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2025-5965/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2025-5965/</guid>
+      <pubDate>Wed, 17 Jun 2026 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated OS command injection in Centreon backup configuration. Unsafely interpolated temporary-directory and SCP parameters are executed by the privileged backup job and can lead to root command execution.</description>
+    </item>
+    <item>
+      <title>CVE-2026-41679 — Paperclip Unauthenticated Remote Code Execution</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2026-41679/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2026-41679/</guid>
+      <pubDate>Sun, 07 Jun 2026 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>Paperclip is a Node.js server and React UI that orchestrates a team of AI agents to run a business. Prior to version 2026.416.0, an unauthenticated attacker can achieve full remote code execution on any network-accessible Paperclip instance running in authenticated mode with default configuration.</description>
+    </item>
+    <item>
+      <title>CVE-2026-26978 — FreePBX Backup &amp; Restore PHP Object Injection to RCE</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2026-26978/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2026-26978/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated PHP object injection in the FreePBX Backup &amp; Restore module. Attacker-controlled manifest data reaches unserialize() during restore and can be weaponized for remote code execution.</description>
+    </item>
+    <item>
+      <title>CVE-2026-28287 — FreePBX Recordings Module Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2026-28287/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2026-28287/</guid>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated OS command injection in FreePBX System Recordings through crafted filename values processed by AJAX media-conversion workflows.</description>
+    </item>
+    <item>
+      <title>CVE-2026-28209 — FreePBX ElevenLabs TTS Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2026-28209/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2026-28209/</guid>
+      <pubDate>Fri, 13 Mar 2026 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated OS command injection in the FreePBX System Recordings ElevenLabs TTS driver, where attacker-controlled file_name input is interpolated into an ffmpeg command executed by exec().</description>
+    </item>
+    <item>
+      <title>CVE-2025-5946 — Centreon Poller Reload Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2025-5946/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2025-5946/</guid>
+      <pubDate>Sun, 02 Nov 2025 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated OS command injection in Centreon Infra Monitoring through the broker reload command, allowing a high-privileged web user to execute commands when the broker reload path is triggered.</description>
+    </item>
+    <item>
+      <title>CVE-2025-4678 — Pandora ITSM Chromium Path Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2025-4678/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2025-4678/</guid>
+      <pubDate>Tue, 12 Aug 2025 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated OS command injection in Pandora ITSM through the chromium_path configuration value, triggered when report or chart content is exported to PDF.</description>
+    </item>
+    <item>
+      <title>CVE-2024-12971 — Pandora FMS Chromium/PhantomJS Path Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-12971/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-12971/</guid>
+      <pubDate>Tue, 18 Mar 2025 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated OS command injection in Pandora FMS through the Chromium or PhantomJS path configuration, allowing an administrator to execute arbitrary commands on the server.</description>
+    </item>
+    <item>
+      <title>CVE-2024-12992 — Pandora FMS QuickShell Port Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-12992/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-12992/</guid>
+      <pubDate>Tue, 18 Mar 2025 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated OS command injection in the Pandora FMS goTTY QuickShell configuration, where the attacker-controlled port value reaches shell_exec() without shell-safe handling.</description>
+    </item>
+    <item>
+      <title>CVE-2025-4653 — Pandora ITSM Backup Name Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2025-4653/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2025-4653/</guid>
+      <pubDate>Wed, 18 Jun 2025 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated OS command injection in Pandora ITSM through the backup name field, allowing an administrator to execute arbitrary commands when a backup is created.</description>
+    </item>
+    <item>
+      <title>CVE-2025-24016 — Wazuh Unsafe Deserialization Remote Code Execution</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2025-24016/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2025-24016/</guid>
+      <pubDate>Wed, 16 Jul 2025 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>Wazuh is a free and open source platform used for threat prevention, detection, and response. Starting in version 4.4.0 and prior to version 4.9.1, an unsafe deserialization vulnerability allows for remote code execution on Wazuh servers.</description>
+    </item>
+    <item>
+      <title>CVE-2025-30406 — CentreStack/Triofox ViewState Deserialization RCE</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2025-30406/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2025-30406/</guid>
+      <pubDate>Fri, 02 May 2025 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>Gladinet CentreStack through 16.1.10296.56315 (fixed in 16.4.10315.56368) has a deserialization vulnerability due to the CentreStack portal&apos;s hardcoded machineKey use, as exploited in the wild in March 2025.</description>
+    </item>
+    <item>
+      <title>CVE-2025-32433 — Erlang/OTP SSH Unauthenticated Remote Code Execution</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2025-32433/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2025-32433/</guid>
+      <pubDate>Fri, 18 Apr 2025 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>Erlang/OTP is a set of libraries for the Erlang programming language. Prior to versions OTP-27.3.3, OTP-26.2.5.11, and OTP-25.3.2.20, a SSH server may allow an attacker to perform unauthenticated remote code execution (RCE).</description>
+    </item>
+    <item>
+      <title>CVE-2024-48457 — Netis Routers Unauthenticated Password Reset</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-48457/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-48457/</guid>
+      <pubDate>Tue, 07 Jan 2025 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authentication bypass in the Netis first-time setup workflow allows an unauthenticated attacker to reset both the router administrator password and Wi-Fi password.</description>
+    </item>
+    <item>
+      <title>CVE-2024-55555 — Invoice Ninja APP_KEY Deserialization RCE</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-55555/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-55555/</guid>
+      <pubDate>Fri, 07 Mar 2025 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>Invoice Ninja before 5.10.43 allows remote code execution from a pre-authenticated route when an attacker knows the APPKEY. This is exacerbated by .env files, available from the product&apos;s repository, that have default APPKEY values.</description>
+    </item>
+    <item>
+      <title>CVE-2024-55556 — Crater Invoice Laravel Session Deserialization RCE</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-55556/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-55556/</guid>
+      <pubDate>Wed, 05 Mar 2025 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>A vulnerability in Crater Invoice allows an unauthenticated attacker with knowledge of the APPKEY to achieve remote command execution on the server by manipulating the laravelsession cookie, exploiting arbitrary deserialization through the encrypted session data.</description>
+    </item>
+    <item>
+      <title>CVE-2024-24578 — RaspberryMatic Unauthenticated Remote Code Execution</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-24578/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-24578/</guid>
+      <pubDate>Tue, 28 Jan 2025 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>RaspberryMatic is an open-source operating system for HomeMatic internet-of-things devices. RaspberryMatic / OCCU prior to version 3.75.6.20240316 contains a unauthenticated remote code execution (RCE) vulnerability, caused by multiple issues within the Java based HMIPServer.jar component.</description>
+    </item>
+    <item>
+      <title>CVE-2024-48455 — Netis Routers Unauthenticated Information Disclosure</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-48455/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-48455/</guid>
+      <pubDate>Tue, 07 Jan 2025 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Unauthenticated disclosure of router configuration and runtime information through the Netis skk_get.cgi endpoint, affecting multiple Netis models and rebranded devices.</description>
+    </item>
+    <item>
+      <title>CVE-2024-48456 — Netis Routers Password Change Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-48456/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-48456/</guid>
+      <pubDate>Tue, 07 Jan 2025 00:00:00 GMT</pubDate>
+      <category>Original Research</category>
+      <description>Authenticated blind OS command injection in the Netis administrative password-change workflow. The flaw can be chained with CVE-2024-48455 and CVE-2024-48457 for unauthenticated remote code execution.</description>
+    </item>
+    <item>
+      <title>CVE-2024-11320 — Pandora FMS LDAP Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-11320/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-11320/</guid>
+      <pubDate>Sat, 14 Dec 2024 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>Arbitrary commands execution on the server by exploiting a command injection vulnerability in the LDAP authentication mechanism. This issue affects Pandora FMS: from 700 through &lt;=777.4</description>
+    </item>
+    <item>
+      <title>CVE-2022-3405 — Acronis Cyber Protect Agent Code Execution</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2022-3405/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2022-3405/</guid>
+      <pubDate>Wed, 23 Oct 2024 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>Code execution and sensitive information disclosure due to excessive privileges assigned to Acronis Agent. The following products are affected: Acronis Cyber Protect 15 (Windows, Linux) before build 29486, Acronis Cyber Backup 12.5 (Windows, Linux) before build 16545.</description>
+    </item>
+    <item>
+      <title>CVE-2024-2054 — Artica Proxy PHP Object Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-2054/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-2054/</guid>
+      <pubDate>Fri, 15 Mar 2024 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>The Artica-Proxy administrative web application will deserialize arbitrary PHP objects supplied by unauthenticated users and subsequently enable code execution as the &quot;www-data&quot; user.</description>
+    </item>
+    <item>
+      <title>CVE-2022-30995 — Acronis Cyber Protect Sensitive Information Disclosure</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2022-30995/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2022-30995/</guid>
+      <pubDate>Wed, 23 Oct 2024 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>Sensitive information disclosure due to improper authentication. The following products are affected: Acronis Cyber Protect 15 (Windows, Linux) before build 29486, Acronis Cyber Backup 12.5 (Windows, Linux) before build 16545.</description>
+    </item>
+    <item>
+      <title>CVE-2024-36401 — GeoServer Remote Code Execution</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-36401/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-36401/</guid>
+      <pubDate>Wed, 10 Jul 2024 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>GeoServer is an open source server that allows users to share and edit geospatial data.</description>
+    </item>
+    <item>
+      <title>CVE-2023-45249 — Acronis Cyber Infrastructure Default-Credential RCE</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2023-45249/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2023-45249/</guid>
+      <pubDate>Sun, 15 Sep 2024 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>Remote command execution due to use of default passwords.</description>
+    </item>
+    <item>
+      <title>CVE-2024-28255 — OpenMetadata JWT Authentication Bypass</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-28255/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-28255/</guid>
+      <pubDate>Sun, 28 Jul 2024 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>OpenMetadata is a unified platform for discovery, observability, and governance powered by a central metadata repository, in-depth lineage, and seamless team collaboration.</description>
+    </item>
+    <item>
+      <title>CVE-2024-22729 — Netis MW5360 Password Parameter Command Injection</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2024-22729/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2024-22729/</guid>
+      <pubDate>Sun, 19 May 2024 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>NETIS SYSTEMS MW5360 V1.0.1.3031 was discovered to contain a command injection vulnerability via the password parameter on the login page.</description>
+    </item>
+    <item>
+      <title>CVE-2013-3632 — OpenMediaVault Cron Arbitrary User Command Execution</title>
+      <link>https://h00die-gr3y.github.io/research/cve-2013-3632/</link>
+      <guid isPermaLink="true">https://h00die-gr3y.github.io/research/cve-2013-3632/</guid>
+      <pubDate>Tue, 02 Jul 2024 00:00:00 GMT</pubDate>
+      <category>Technical Analysis</category>
+      <description>The Cron service in rpc.php in OpenMediaVault allows remote authenticated users to execute cron jobs as arbitrary users and execute arbitrary commands via the username parameter.</description>
+    </item>
+  </channel>
+</rss>

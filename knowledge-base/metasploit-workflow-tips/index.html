@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Practical Metasploit notes for reverse listeners and local services when the target reaches you through NAT or a controlled TCP/HTTP tunnel."><meta name="author" content="h00die-gr3y"><meta name="robots" content="index,follow"><meta name="theme-color" content="#090c0b"><meta name="color-scheme" content="dark"><link rel="canonical" href="https://h00die-gr3y.github.io/knowledge-base/metasploit-workflow-tips/"><link rel="icon" type="image/png" href="/images/site/favicon.png"><link rel="apple-touch-icon" href="/images/site/apple-touch-icon.png"><link rel="alternate" type="application/rss+xml" title="h00die-gr3y Research Feed" href="/rss.xml"><link rel="sitemap" href="/sitemap.xml"><link rel="me" href="https://github.com/h00die-gr3y"><meta property="og:site_name" content="h00die-gr3y"><meta property="og:title" content="Metasploit Workflow Tips: Listeners, NAT and Tunnels — Knowledge Base — h00die-gr3y"><meta property="og:description" content="Practical Metasploit notes for reverse listeners and local services when the target reaches you through NAT or a controlled TCP/HTTP tunnel."><meta property="og:url" content="https://h00die-gr3y.github.io/knowledge-base/metasploit-workflow-tips/"><meta property="og:type" content="article"><meta property="og:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="og:image:alt" content="h00die-gr3y security research"><meta property="og:image:width" content="1254"><meta property="og:image:height" content="1254"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Metasploit Workflow Tips: Listeners, NAT and Tunnels — Knowledge Base — h00die-gr3y"><meta name="twitter:description" content="Practical Metasploit notes for reverse listeners and local services when the target reaches you through NAT or a controlled TCP/HTTP tunnel."><meta name="twitter:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="article:tag" content="Metasploit"><meta property="article:tag" content="Reverse Connections"><meta property="article:tag" content="NAT"><meta property="article:tag" content="Tunneling"><meta property="article:tag" content="Listener Configuration"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Metasploit Workflow Tips: Listeners, NAT and Tunnels","description":"Practical Metasploit notes for reverse listeners and local services when the target reaches you through NAT or a controlled TCP/HTTP tunnel.","url":"https://h00die-gr3y.github.io/knowledge-base/metasploit-workflow-tips/","mainEntityOfPage":"https://h00die-gr3y.github.io/knowledge-base/metasploit-workflow-tips/","image":"https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png","author":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"publisher":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"keywords":"Metasploit, Reverse Connections, NAT, Tunneling, Listener Configuration"}</script><title>Metasploit Workflow Tips: Listeners, NAT and Tunnels — Knowledge Base — h00die-gr3y</title><link rel="stylesheet" href="/_astro/Footer.B4NsPX6g.css"></head><body><a class="skip-link" href="#main-content">Skip to content</a><header class="site-header"><div class="container header-inner"><a class="brand" href="/" aria-label="h00die-gr3y home"><span class="brand-mark">H00DIE</span><span class="brand-dash">-</span><span class="brand-muted">GR3Y</span></a><nav class="main-nav" aria-label="Main navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a></nav><a class="github-link" href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a><details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></nav></details></div></header><main id="main-content" tabindex="-1"><section class="kb-detail-hero"><div class="container"><div class="kb-detail-labels"><span class="section-index">KNOWLEDGE BASE</span><span class="kb-topic-label">EXPLOIT DEVELOPMENT</span></div><h1>Metasploit Workflow Tips: Listeners, NAT and Tunnels</h1><p>Practical Metasploit notes for reverse listeners and local services when the target reaches you through NAT or a controlled TCP/HTTP tunnel.</p></div></section><section class="kb-detail section-bordered"><div class="container kb-detail-grid"><article class="research-body kb-body"><h2 id="why-the-exploit-works-but-the-shell-does-not-come-back">Why the exploit works but the shell does not come back</h2>
+<p>This one has bitten me more than once.</p>
+<p>The exploit request succeeds, the target is clearly vulnerable, but the reverse shell never arrives. In many cases the payload is fine — the problem is simply that the target was told to connect to the wrong address.</p>
+<p>It becomes extra confusing when the research machine sits behind NAT or when I use a TCP/HTTP tunnel in a remote lab.</p>
+<p>The easiest way to think about it is that there are <strong>two sides</strong>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>target</span></span>
+<span class="line"><span>  |</span></span>
+<span class="line"><span>  | connects to</span></span>
+<span class="line"><span>  v</span></span>
+<span class="line"><span>PUBLIC / TUNNEL ENDPOINT</span></span>
+<span class="line"><span>&lt;tunnel-host&gt;:&lt;public-port&gt;</span></span>
+<span class="line"><span>  |</span></span>
+<span class="line"><span>  | forwards to</span></span>
+<span class="line"><span>  v</span></span>
+<span class="line"><span>LOCAL METASPLOIT LISTENER</span></span>
+<span class="line"><span>0.0.0.0:&lt;local-port&gt;</span></span></code></pre>
+<p>The target needs the public endpoint. Metasploit needs to bind locally.</p>
+<h2 id="reverse-tcp-lhost-is-not-always-the-bind-address">Reverse TCP: <code>LHOST</code> is not always the bind address</h2>
+<p>With a tunnel, I may end up with something like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>public side : 6.tcp.eu.ngrok.io:14594</span></span>
+<span class="line"><span>local side  : 0.0.0.0:1970</span></span></code></pre>
+<p>Then the Metasploit settings look like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>set LHOST 6.tcp.eu.ngrok.io</span></span>
+<span class="line"><span>set LPORT 14594</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>set ReverseListenerBindAddress 0.0.0.0</span></span>
+<span class="line"><span>set ReverseListenerBindPort 1970</span></span></code></pre>
+<p>That is the important trick.</p>
+<p><code>LHOST</code> / <code>LPORT</code> tell the payload where to connect.<br>
+<code>ReverseListenerBindAddress</code> / <code>ReverseListenerBindPort</code> tell Metasploit where to listen on my own machine.</p>
+<p>They do not need to be the same.</p>
+<h2 id="a-small-ngrok-setup">A small ngrok setup</h2>
+<p>For a lab I might create one TCP tunnel for a reverse shell and one HTTP tunnel for payload staging.</p>
+<p>Do <strong>not</strong> paste a real token into a public config. Use a placeholder or an environment-specific secret.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"2"</span></span>
+<span class="line"><span style="color:#85E89D">authtoken</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&lt;NGROK_AUTHTOKEN&gt;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">tunnels</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  reverse_tcp</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    proto</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">tcp</span></span>
+<span class="line"><span style="color:#85E89D">    addr</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">0.0.0.0:1970</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">  payload_http</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    proto</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">http</span></span>
+<span class="line"><span style="color:#85E89D">    addr</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">0.0.0.0:1981</span></span></code></pre>
+<p>Then:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">ngrok</span><span style="color:#9ECBFF"> start</span><span style="color:#79B8FF"> --all</span><span style="color:#79B8FF"> --region</span><span style="color:#9ECBFF"> eu</span></span></code></pre>
+<p>A session may give you something like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>Forwarding  tcp://6.tcp.eu.ngrok.io:14594 -&gt; 0.0.0.0:1970</span></span>
+<span class="line"><span>Forwarding  https://64db913882c5.eu.ngrok.io -&gt; http://0.0.0.0:1981</span></span></code></pre>
+<p>Now I know exactly which values belong on the public side and which values stay local.</p>
+<h2 id="http-stagers-srvhost-versus-urihost">HTTP stagers: <code>SRVHOST</code> versus <code>URIHOST</code></h2>
+<p>Modules that host a payload add another pair of settings.</p>
+<p>For example:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>set SRVHOST 0.0.0.0</span></span>
+<span class="line"><span>set SRVPORT 1981</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>set URIHOST 64db913882c5.eu.ngrok.io</span></span>
+<span class="line"><span>set URIPORT 443</span></span></code></pre>
+<p>Here:</p>
+<ul>
+<li><code>SRVHOST</code> / <code>SRVPORT</code> are the local HTTP service;</li>
+<li><code>URIHOST</code> / <code>URIPORT</code> are what the target should see in the generated URL.</li>
+</ul>
+<p>Again: local bind on one side, public address on the other.</p>
+<p>If a module generates a perfect payload URL containing <code>127.0.0.1</code>, you know which setting to check.</p>
+<h2 id="module-specific-listeners-can-use-different-names">Module-specific listeners can use different names</h2>
+<p>Not every callback comes from a Meterpreter payload.</p>
+<p>A good example is the Metasploit Log4Shell scanner, which starts its own LDAP service. For that kind of module you may find settings such as:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>ListenerBindAddress</span></span>
+<span class="line"><span>ListenerBindPort</span></span></code></pre>
+<p>A lab configuration can look like:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>set SRVHOST 4.tcp.eu.ngrok.io</span></span>
+<span class="line"><span>set SRVPORT 13743</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>set ListenerBindAddress 0.0.0.0</span></span>
+<span class="line"><span>set ListenerBindPort 389</span></span></code></pre>
+<p>That tells the scanner to advertise the public LDAP endpoint while binding its LDAP server locally on port 389.</p>
+<p>The useful habit here is:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>options</span></span>
+<span class="line"><span>advanced</span></span></code></pre>
+<p>I check both. Some of the listener magic is hiding under <code>advanced</code>.</p>
+<h2 id="log4shell-scanner-example">Log4Shell scanner example</h2>
+<p>Here is the kind of setup I used while testing the listener mapping:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>msf6 auxiliary(scanner/http/log4shell_scanner) &gt; set srvhost 4.tcp.eu.ngrok.io</span></span>
+<span class="line"><span>srvhost =&gt; 4.tcp.eu.ngrok.io</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>msf6 auxiliary(scanner/http/log4shell_scanner) &gt; set srvport 13743</span></span>
+<span class="line"><span>srvport =&gt; 13743</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>msf6 auxiliary(scanner/http/log4shell_scanner) &gt; set ListenerBindAddress 0.0.0.0</span></span>
+<span class="line"><span>ListenerBindAddress =&gt; 0.0.0.0</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>msf6 auxiliary(scanner/http/log4shell_scanner) &gt; set ListenerBindPort 389</span></span>
+<span class="line"><span>ListenerBindPort =&gt; 389</span></span></code></pre>
+<p>The exact module options can change, so I still run <code>options</code> and <code>advanced</code> on the Metasploit version in front of me.</p>
+<h2 id="my-callback-troubleshooting-order">My callback troubleshooting order</h2>
+<p>When a session does not arrive, I go through this in order:</p>
+<ol>
+<li>Did the vulnerable request actually succeed?</li>
+<li>What host and port did the payload receive?</li>
+<li>Can the target reach that public host and port?</li>
+<li>Does the tunnel forward to the port I think it does?</li>
+<li>Is Metasploit listening on that local port?</li>
+<li>Is there a separate <code>ListenerBind*</code> or <code>ReverseListenerBind*</code> setting?</li>
+<li>Only then do I start blaming the payload.</li>
+</ol>
+<p>That order saves a lot of time.</p>
+<h2 id="a-note-on-remote-labs">A note on remote labs</h2>
+<p>I use tunneling here as a practical transport mechanism when NAT or lab topology gets in the way. The tunnel does not make a broken payload work; it only gives the target a route back to my listener.</p>
+<p>And because tunnel hostnames and ports are often temporary, I re-check the mapping every time I restart the tunnel.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://docs.metasploit.com/docs/using-metasploit/intermediate/running-private-modules.html">Metasploit documentation — Running private modules</a></li>
+<li><a href="https://ngrok.com/">ngrok</a></li>
+</ul>
+</article><aside class="research-sidebar kb-sidebar"><div class="meta-panel"><h2>Reference metadata</h2><dl><div><dt>Category</dt><dd>Exploit Development</dd></div><div><dt>Topics</dt><dd>Metasploit, Reverse Connections, NAT, Tunneling, Listener Configuration</dd></div></dl></div><div class="meta-panel"><h2>Related articles</h2><ul class="meta-links"><li><a href="/articles/from-vulnerability-analysis-to-exploit-development/">From Vulnerability Analysis to Exploit Development →</a></li></ul></div><div class="meta-panel"><h2>More in this area</h2><ul class="meta-links"><li><a href="/knowledge-base/metasploit-module-development/">Metasploit Exploit Module Development →</a></li></ul></div><div class="meta-panel archive-note"><h2>Knowledge Base scope</h2><p>Reusable technical notes and methodology. Vulnerability-specific evidence remains in Research.</p></div></aside></div></section></main><footer class="site-footer"><div class="container footer-inner"><div><strong>h00die-gr3y</strong><p>Independent security research and exploit development.</p></div><div class="footer-meta"><a href="/rss.xml">RSS</a><a href="/advisories/">Advisories</a><a href="/disclaimer/">Disclaimer</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></div></div></footer></body></html>

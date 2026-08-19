@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://h00die-gr3y.github.io/sitemap.xml

